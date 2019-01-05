@@ -1,7 +1,7 @@
 --[[
-    L_Yeelight.lua - Core module for Yeelight
+    L_Yeelight1.lua - Core module for Yeelight
     Copyright 2017,2018 Patrick H. Rigney, All Rights Reserved.
-    This file is part of Yeelight.
+    This file is part of the Yeelight for Vera HA controllers.
 --]]
 --luacheck: std lua51,module,read globals luup,ignore 542 611 612 614 111/_,no max line length
 
@@ -372,11 +372,11 @@ local function checkBulbProp( bulb, taskid, argv )
                 setVar( COLORSID, "CurrentColor", string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b ), bulb )
                 setVar( COLORSID, "TargetColor", targetColor, bulb )
                 setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
-                
+
                 if getVarNumeric( "AuthoritativeForDevice", 0, bulb, MYSID ) ~= 0 then
                     -- ??? to do
                 end
-                
+
                 break
             elseif data and data.method and data.method == "props" then
                 -- Notification message in response to another command.
@@ -436,9 +436,9 @@ end
 -- Start bulb
 local function startBulb( bulb )
     D("startBulb(%1)", bulb)
-    
+
     devData[tostring(bulb)] = {}
-    
+
     scheduleDelay( { id=tostring(bulb), info="check", owner=bulb, func=checkBulb }, 15 )
 end
 
@@ -485,7 +485,7 @@ local function processDiscoveryResponses( dev )
             hasNew = true
         else
             -- Existing device; update address.
-            L("Updating IP for existing device %1 (%2 #%3) to %4", newid, 
+            L("Updating IP for existing device %1 (%2 #%3) to %4", newid,
                 (luup.devices[seen[newid]] or {}).description, seen[newid], ndev.Address)
             luup.variable_set( MYSID, "Address", ndev.Address, seen[newid] )
         end
@@ -710,7 +710,7 @@ function actionSetColor( newVal, dev )
                 c = math.floor( ( temp - 5500 ) / 3500 * 255 )
             else
                 L({level=1,msg="Unable to set color, target value %1 invalid"}, newVal)
-                return 
+                return
             end
         end
         sendDeviceCommand( "set_ct_abx", { temp, "smooth", 500 }, dev )
@@ -741,7 +741,7 @@ function jobDiscoverIP( pdev, addr )
     D("jobDiscoverIP() checking %1", addr)
     addr,port = string.match( addr, "^([^:]+):(%d+)" )
     port = tonumber(port)
-    if addr == nil or port == nil then 
+    if addr == nil or port == nil then
         gatewayStatus("Discovery IP invalid, must be A.B.C.D:port")
         return 2,0
     end
@@ -842,7 +842,7 @@ local function masterTick(pdev,taskid)
 
     -- Do master tick work here
 
-    -- Schedule next master tick. 
+    -- Schedule next master tick.
     -- This plugin doesn't need one, so we let it die.
     -- scheduleTick( taskid, nextTick )
 end
@@ -859,7 +859,7 @@ function startPlugin( pdev )
     isOpenLuup = false
     tickTasks = {}
     devData[tostring(pdev)] = {}
-    
+
     math.randomseed( os.time() )
 
     -- Debug?

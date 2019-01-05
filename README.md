@@ -16,11 +16,11 @@ To install this plugin:
   * Leave all other fields blank (you may set the room if you wish), and press the *Create device* button.
   * Go to *Apps > Develop apps > Test Luup code (Lua)* and enter `luup.reload()` and run it.
   * Hard-refresh/reload your browser (with cache flush). You should now see the Yeelight Plugin master device.
-  
+
 ### Additional Instructions for openLuup
 
-openLuup does not have some of Vera's "native" service files and device type declarations used by this plugin. 
-To get this plugin working under openLuup, you will need to download 
+openLuup does not have some of Vera's "native" service files and device type declarations used by this plugin.
+To get this plugin working under openLuup, you will need to download
 `D_DimmableRGBLight1.json` and `D_DimmableRGBLight1.xml` (uncompressed, not the compressed *.lzo* versions)
 and put them in your openLuup installation directory.
 
@@ -42,7 +42,7 @@ and takes about 15 seconds. It will create child devices for any Yeelight device
 ## Controlling Devices
 
 Controlling discovered devices uses the Vera-standard "RGB Dimmable Light" services and user interface (so don't blame me).
-From this interface, you can control on/off, brightness, color temperature, and RGB color. 
+From this interface, you can control on/off, brightness, color temperature, and RGB color.
 
 Different products have different
 limits for these values, and Vera has its own limits; not everything that is possible for the device may be possible through

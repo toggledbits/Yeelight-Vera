@@ -10,7 +10,7 @@
         <staticJson>D_Yeelight1_UI7.json</staticJson>
         <friendlyName>Yeelight Plugin</friendlyName>
         <manufacturer>rigpapa</manufacturer>
-        <manufacturerURL>http://www.toggledbits.com/emby/</manufacturerURL>
+        <manufacturerURL>http://www.toggledbits.com/yeelight/</manufacturerURL>
         <modelDescription></modelDescription>
         <modelName>Yeelight Plugin</modelName>
         <handleChildren>1</handleChildren>
