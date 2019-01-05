@@ -1,0 +1,196 @@
+{
+	"__comment": [
+		"D_Yeelight1_UI7.json",
+		"Copyright (c) 2018 Patrick H. Rigney, All Rights Reserved"
+	],
+	"default_icon": "https://www.toggledbits.com/assets/yeelight/yeelight-plugin.png",
+	"state_icons": [],
+	"x": 2,
+	"y": 4,
+	"inScene": 1,
+	"Tabs": [{
+			"Label": {
+				"lang_tag": "tabname_control",
+				"text": "Control"
+			},
+			"Position": 0,
+			"TabType": "flash",
+			"TopNavigationTab": 1,
+			"ControlGroup": [{
+					"id": 1,
+					"scenegroup": 1
+				},
+				{
+					"id": 2,
+					"scenegroup": 2
+				}
+			],
+			"SceneGroup": [{
+					"id": 1,
+					"top": 0,
+					"left": 0,
+					"x": 1,
+					"y": 4
+				},
+				{
+					"id": 2,
+					"top": 1,
+					"left": 0,
+					"x": 1,
+					"y": 3
+				}
+			],
+			"Control": [{
+					"ControlGroup": 1,
+					"ControlType": "variable",
+					"top": 1,
+					"left": 0,
+					"Display": {
+						"Top": 0,
+						"Left": 0,
+						"Width": 320,
+						"Height": 24,
+						"Service": "urn:toggledbits-com:serviceId:Yeelight1",
+						"Variable": "Message"
+					},
+					"ControlCode": "message"
+				},
+                {
+                    "ControlType": "button",
+                    "top": "2",
+                    "left": "0",
+                    "Label": {
+                        "lang_tag": "cmd_yeelight_discovery",
+                        "text": "Run Discovery"
+                    },
+                    "Display": {
+                        "Top": 30,
+                        "Left": 0,
+                        "Width": 120,
+                        "Height": 25
+                    },
+                    "Command": {
+                        "Service": "urn:toggledbits-com:serviceId:Yeelight1",
+                        "Action": "RunDiscovery",
+                        "Parameters": []
+                    },
+                    "ControlCode": "run_discovery"
+                },
+                {
+                    "ControlType": "label",
+                    "top": "0.2",
+                    "left": "0",
+                    "Label": {
+                        "lang_tag": "yeelight_ex_discovery",
+                        "text": "This form of discovery uses the Yeelight discovery protocol to find control-enabled devices in your local network. Try this first."
+                    },
+                    "Display": {
+                        "Top": 30,
+                        "Left": 150,
+                        "Width": 480,
+                        "Height": 75
+                    }
+                },
+
+                {
+                    "ControlType": "input",
+                    "ID": "ipaddr",
+                    "Display": {
+                        "Top": 90,
+                        "Left": 0,
+                        "Width": 120,
+                        "Height": 24
+                    }
+                },
+                {
+                    "ControlType": "button",
+                    "top": "2",
+                    "left": "0",
+                    "Label": {
+                        "lang_tag": "cmd_yeelight_discip",
+                        "text": "Discover IP"
+                    },
+                    "Display": {
+                        "Top": 90,
+                        "Left": 150,
+                        "Width": 120,
+                        "Height": 25
+                    },
+                    "Command": {
+                        "Service": "urn:toggledbits-com:serviceId:Yeelight1",
+                        "Action": "DiscoverIP",
+                        "Parameters": [{
+                            "Name": "IPAddress",
+                            "ID": "ipaddr"
+                        }]
+                    },
+                    "ControlCode": "run_discip"
+                },
+                {
+                    "ControlType": "label",
+                    "top": "0.2",
+                    "left": "0",
+                    "Label": {
+                        "lang_tag": "yeelight_ex_discip",
+                        "text": "If a device can't be located via normal discovery above, and it has a stable IP address (via a DHCP reservation or static configuration), enter its IP address here and press \"Discover IP\"."
+                    },
+                    "Display": {
+                        "Top": 120,
+                        "Left": 0,
+                        "Width": 630,
+                        "Height": 48
+                    }
+                },
+				{
+					"ControlType": "label",
+					"Display": {
+						"Top": 210,
+						"Left": 0,
+						"Width": 320,
+						"Height": 24
+					},
+					"Label": {
+						"lang_tag": "tb_begging",
+						"text": "<b>Please consider <a href=\"https://www.toggledbits.com/donate\" target=\"_blank\">making a donation</a> to support the ongoing development of this plugin.</b>"
+					}
+				},
+				{
+					"ControlType": "label",
+					"Display": {
+						"Top": 270,
+						"Left": 0,
+						"Width": 320,
+						"Height": 24
+					},
+					"Label": {
+						"lang_tag": "tb_yeelight_about",
+						"text": "Yeelight ver 1.0 &#169; 2018 Patrick H. Rigney, All Rights Reserved.<br/><a href=\"http://forum.micasaverde.com/index.php/topic,118013.0.html\" target=\"_blank\">Support Forum Thread</a> &#149; <a href=\"https://github.com/toggledbits/Yeelight/\" target=\"_blank\">Documentation and license information</a>.<br>&nbsp;<br>Support links: <a href=\"/port_3480/data_request?id=lr_Yeelight&action=status\" target=\"_blank\">Plugin&nbsp;Status</a> &#149; <a href=\"/cgi-bin/cmh/log.sh?Device=LuaUPnP\" target=\"_blank\">Show&nbsp;Log</a>"
+					}
+				}
+			],
+			"Conditions": []
+		},
+		{
+			"Label": {
+				"lang_tag": "ui7_advanced",
+				"text": "Advanced"
+			},
+			"Position": 1,
+			"TabType": "javascript",
+			"ScriptName": "shared.js",
+			"Function": "advanced_device"
+		},
+		{
+			"Label": {
+				"lang_tag": "ui7_logs",
+				"text": "Logs"
+			},
+			"Position": 2,
+			"TabType": "javascript",
+			"ScriptName": "shared.js",
+			"Function": "device_logs"
+		}
+	],
+	"eventList2": [],
+	"device_type": "urn:schemas-toggledbits-com:device:Yeelight:1"
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- S_Reactor.xml -->
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <serviceStateTable>
+        <stateVariable sendEvents="no">
+            <name>DebugMode</name>
+            <dataType>boolean</dataType>
+            <defaultValue>0</defaultValue>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>misc_arg</name>
+            <dataType>string</dataType>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>bool_arg</name>
+            <dataType>boolean</dataType>
+        </stateVariable>
+    </serviceStateTable>
+    <actionList>
+        <action>
+            <name>RunDiscovery</name>
+            <argumentList>
+            </argumentList>
+        </action>
+        <action>
+            <name>DiscoverIP</name>
+            <argumentList>
+                <argument>
+                   <name>IPAddress</name>
+                   <direction>in</direction>
+                   <relatedStateVariable>misc_arg</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>SetDebug</name>
+            <argumentList>
+                <argument>
+                    <name>debug</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>DebugMode</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>MasterClear</name>
+            <argumentList/>
+        </action>
+    </actionList>
+</scpd>

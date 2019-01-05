@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- D_Yeelight1.xml -->
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-toggledbits-com:device:Yeelight:1</deviceType>
+        <staticJson>D_Yeelight1_UI7.json</staticJson>
+        <friendlyName>Yeelight Plugin</friendlyName>
+        <manufacturer>rigpapa</manufacturer>
+        <manufacturerURL>http://www.toggledbits.com/emby/</manufacturerURL>
+        <modelDescription></modelDescription>
+        <modelName>Yeelight Plugin</modelName>
+        <handleChildren>1</handleChildren>
+        <Category_Num>1</Category_Num>
+        <serviceList>
+          <service>
+            <serviceType>urn:schemas-toggledbits-com:service:Yeelight:1</serviceType>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <SCPDURL>S_Yeelight1.xml</SCPDURL>
+          </service>
+        </serviceList>
+        <implementationList>
+          <implementationFile>I_Yeelight1.xml</implementationFile>
+        </implementationList>
+    </device>
+</root>

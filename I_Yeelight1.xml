@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- I_Yeelight1.xml -->
+<implementation>
+    <functions>
+        -- --------------------------------------------------------------------
+        -- Yeelight
+        -- Copyright 2018 Patrick H. Rigney, All Rights Reserved.
+        -- https://www.toggledbits.com/yeelight
+        -- --------------------------------------------------------------------
+        function startupYeelightPlugin(devNum)
+            luup.log("Yeelight Plugin STARTUP!")
+            YeelightPlugin = require("L_Yeelight1")
+            if not YeelightPlugin then 
+                luup.log("YeelightPlugin startup FAILED",1)
+                return false
+            end
+            yeelightRequestHandler = YeelightPlugin.handleLuupRequest
+            yeelightWatchCallback = YeelightPlugin.watchCallback
+            yeelightTaskTick = YeelightPlugin.taskTickCallback
+            luup.register_handler("yeelightRequestHandler", "Yeelight")
+            return YeelightPlugin.startPlugin(devNum)
+        end
+    </functions>
+    <startup>startupYeelightPlugin</startup>
+    <actionList>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>RunDiscovery</name>
+            <job>
+                YeelightPlugin.jobRunDiscovery( lul_device )
+                return 4,0
+            </job>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>DiscoverIP</name>
+            <job>
+                YeelightPlugin.jobDiscoverIP( lul_device, lul_settings.IPAddress )
+                return 4,0
+            </job>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>MasterClear</name>
+            <job>
+                YeelightPlugin.actionMasterClear( lul_device )
+                return 4,0
+            </job>
+        </action>
+        
+        <action>
+            <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
+            <name>SetTarget</name>
+            <run>
+                YeelightPlugin.actionPower( lul_settings.newTargetValue, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:upnp-org:serviceId:Dimming1</serviceId>
+            <name>SetLoadLevelTarget</name>
+            <run>
+                YeelightPlugin.actionBrightness( lul_settings.newLoadlevelTarget, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:micasaverde-com:serviceId:Color1</serviceId>
+            <name>SetColor</name>
+            <run>
+                YeelightPlugin.actionSetColor( lul_settings.newColorTarget, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:micasaverde-com:serviceId:Color1</serviceId>
+            <name>SetColorRGB</name>
+            <run>
+                YeelightPlugin.actionSetColor( lul_settings.newColorRGBTarget, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:micasaverde-com:serviceId:Color1</serviceId>
+            <name>SetColorTemp</name>
+            <run>
+                YeelightPlugin.actionSetColor( lul_settings.newColorTempTarget, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:micasaverde-com:serviceId:HaDevice1</serviceId>
+            <name>ToggleState</name>
+            <run>
+                YeelightPlugin.actionToggleState( lul_device )
+            </run>
+        </action>
+    </actionList>
+</implementation>
