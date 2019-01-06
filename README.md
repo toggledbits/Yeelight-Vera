@@ -47,12 +47,12 @@ From this interface, you can control on/off, brightness, color temperature, and 
 Different products have different
 limits for these values, and Vera has its own limits; not everything that is possible for the device may be possible through
 the interface, and not everything that the interface can do may be possible on the bulb. The most notable is color temperature,
-where the Yeelight API allows temperatures down to 1600&deg;K, but Vera's lower limit is 2000; and Vera's upper limit is 9000K,
+where the Yeelight API allows temperatures down to 1600&deg;K, but Vera's lower limit is 2000K; and Vera's upper limit is 9000K,
 where Yeelight's API maximum is 6500K.
 
 If a device is controlled using interfaces other than plugin, there may be a noticeable delay before the plugin shows the device
 status. Updates are not immediate; the API has to be polled, and the default polling interval is 300 seconds (5 minutes). If this
-proves inconvenient, you can change the *UpdateInterval* state variable on the bulb, or to change it for all bulbs, on the master
+proves inconvenient, you can change the `UpdateInterval` state variable in the bulb device, or to change it for all bulbs, on the master
 device. Keep in mind, however, that very small intervals (less than 60 seconds), may increase the load on your Vera (for likely
 very little average benefit).
 
