@@ -30,10 +30,12 @@ The Yeelight plugin does discovery of devices using Yeelight's twist on SSDP. Be
 however, you have to use the Yeelight application (Android, iOS, etc.) to enable "LAN Control" on each device. To do this:
 * Open the Yeelight application;
 * Register any new devices you may have added but are not yet shown in the app;
-* Go into each device...
-* Click the icon that looks like a media eject button
-* Click the "LAN Control" icon
-* Turn LAN control ON.
+* Tap on the device/bulb in the device list;
+* Click the icon that looks like a media eject button;
+* Click the "LAN Control" icon;
+* Turn LAN control ON;
+* POWER CYCLE THE YEELIGHT DEVICE. Many users have found that the bulbs are not discoverable until you reboot them. Aren't we living in a magical age?
+* Repeat these steps for each additional device.
 
 To discover your controllable devices, go to
 the Yeelight Plugin master device control panel, and click the *Run Discovery* button. Discovery will then launch,
@@ -47,12 +49,12 @@ From this interface, you can control on/off, brightness, color temperature, and 
 Different products have different
 limits for these values, and Vera has its own limits; not everything that is possible for the device may be possible through
 the interface, and not everything that the interface can do may be possible on the bulb. The most notable is color temperature,
-where the Yeelight API allows temperatures down to 1600&deg;K, but Vera's lower limit is 2000; and Vera's upper limit is 9000K,
+where the Yeelight API allows temperatures down to 1600&deg;K, but Vera's lower limit is 2000K; and Vera's upper limit is 9000K,
 where Yeelight's API maximum is 6500K.
 
 If a device is controlled using interfaces other than plugin, there may be a noticeable delay before the plugin shows the device
 status. Updates are not immediate; the API has to be polled, and the default polling interval is 300 seconds (5 minutes). If this
-proves inconvenient, you can change the *UpdateInterval* state variable on the bulb, or to change it for all bulbs, on the master
+proves inconvenient, you can change the `UpdateInterval` state variable in the bulb device, or to change it for all bulbs, on the master
 device. Keep in mind, however, that very small intervals (less than 60 seconds), may increase the load on your Vera (for likely
 very little average benefit).
 
