@@ -11,7 +11,7 @@ local debugMode = false
 
 local _PLUGIN_ID = 99999
 local _PLUGIN_NAME = "Yeelight"
-local _PLUGIN_VERSION = "0.1develop"
+local _PLUGIN_VERSION = "1.1develop"
 local _PLUGIN_URL = "https://www.toggledbits.com/"
 local _CONFIGVERSION = 000002
 

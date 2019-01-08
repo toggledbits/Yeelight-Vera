@@ -164,7 +164,7 @@
 					},
 					"Label": {
 						"lang_tag": "tb_yeelight_about",
-						"text": "Yeelight ver 1.0 &#169; 2018 Patrick H. Rigney, All Rights Reserved.<br/><a href=\"http://forum.micasaverde.com/index.php/topic,118013.0.html\" target=\"_blank\">Support Forum Thread</a> &#149; <a href=\"https://github.com/toggledbits/Yeelight/\" target=\"_blank\">Documentation and license information</a>.<br>&nbsp;<br>Support links: <a href=\"/port_3480/data_request?id=lr_Yeelight&action=status\" target=\"_blank\">Plugin&nbsp;Status</a> &#149; <a href=\"/cgi-bin/cmh/log.sh?Device=LuaUPnP\" target=\"_blank\">Show&nbsp;Log</a>"
+						"text": "Yeelight ver 1.1develop &#169; 2018 Patrick H. Rigney, All Rights Reserved.<br/><a href=\"http://forum.micasaverde.com/index.php/topic,118013.0.html\" target=\"_blank\">Support Forum Thread</a> &#149; <a href=\"https://github.com/toggledbits/Yeelight/\" target=\"_blank\">Documentation and license information</a>.<br>&nbsp;<br>Support links: <a href=\"/port_3480/data_request?id=lr_Yeelight&action=status\" target=\"_blank\">Plugin&nbsp;Status</a> &#149; <a href=\"/cgi-bin/cmh/log.sh?Device=LuaUPnP\" target=\"_blank\">Show&nbsp;Log</a>"
 					}
 				}
 			],
