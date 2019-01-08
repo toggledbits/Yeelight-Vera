@@ -30,10 +30,12 @@ The Yeelight plugin does discovery of devices using Yeelight's twist on SSDP. Be
 however, you have to use the Yeelight application (Android, iOS, etc.) to enable "LAN Control" on each device. To do this:
 * Open the Yeelight application;
 * Register any new devices you may have added but are not yet shown in the app;
-* Go into each device...
-* Click the icon that looks like a media eject button
-* Click the "LAN Control" icon
-* Turn LAN control ON.
+* Tap on the device/bulb in the device list;
+* Click the icon that looks like a media eject button;
+* Click the "LAN Control" icon;
+* Turn LAN control ON;
+* POWER CYCLE THE YEELIGHT DEVICE. Many users have found that the bulbs are not discoverable until you reboot them. Aren't we living in a magical age?
+* Repeat these steps for each additional device.
 
 To discover your controllable devices, go to
 the Yeelight Plugin master device control panel, and click the *Run Discovery* button. Discovery will then launch,
