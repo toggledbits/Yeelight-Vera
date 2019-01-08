@@ -13,7 +13,7 @@ local _PLUGIN_ID = 99999
 local _PLUGIN_NAME = "Yeelight"
 local _PLUGIN_VERSION = "0.1develop"
 local _PLUGIN_URL = "https://www.toggledbits.com/"
-local _CONFIGVERSION = 000001
+local _CONFIGVERSION = 000002
 
 local math = require "math"
 local string = require "string"
@@ -419,18 +419,29 @@ end
 -- One-time init for bulb
 local function initBulb( bulb )
     D("initBulb(%1)", bulb)
-    -- initVar( "Address", "", bulb, MYSID )
-    initVar( "AuthoritativeForDevice", "0", bulb, MYSID )
+    -- initVar( "Address", "", bulb, MYSID ) -- set by child creation
     initVar( "UpdateInterval", "", bulb, MYSID )
     initVar( "HexColor", "808080", bulb, MYSID )
+    initVar( "AuthoritativeForDevice", "0", bulb, MYSID )
+    
     initVar( "Target", "0", bulb, SWITCHSID )
     initVar( "Status", "-1", bulb, SWITCHSID )
+    
     initVar( "LoadLevelTarget", "100", bulb, DIMMERSID )
     initVar( "LoadLevelStatus", "0", bulb, DIMMERSID )
     initVar( "TurnOnBeforeDim", "0", bulb, DIMMERSID )
     initVar( "AllowZeroLevel", "0", bulb, DIMMERSID )
+    
     initVar( "TargetColor", "W51", bulb, COLORSID )
     initVar( "CurrentColor", "", bulb, COLORSID )
+    
+    local s = getVarNumeric( "Version", 0, bulb, MYSID )
+    if s < 000002 then
+        luup.attr_set( "category_num", "2", bulb )
+        luup.attr_set( "subcategory_num", "4", bulb )
+    end
+    
+    setVar( MYSID, "Version", _CONFIGVERSION, bulb )
 end
 
 -- Start bulb
