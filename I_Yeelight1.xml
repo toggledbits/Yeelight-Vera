@@ -90,5 +90,41 @@
                 YeelightPlugin.actionToggleState( lul_device )
             </run>
         </action>
+        
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:YeelightRGBLight1</serviceId>
+            <name>SaveCurrentColor</name>
+            <run>
+                error("needs implementation!")
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:YeelightRGBLight1</serviceId>
+            <name>SaveColorProfile</name>
+            <run>
+                error("needs implementation!")
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:YeelightRGBLight1</serviceId>
+            <name>RestoreColorProfile</name>
+            <run>
+                error("needs implementation!")
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:YeelightRGBLight1</serviceId>
+            <name>SetColor</name>
+            <run>
+                error("needs implementation!")
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:YeelightRGBLight1</serviceId>
+            <name>GetColorProfile</name>
+            <run>
+                error("needs implementation!")
+            </run>
+        </action>
     </actionList>
 </implementation>

@@ -28,7 +28,7 @@ local BULBTYPE = "urn:schemas-upnp-org:device:DimmableRGBLight:1"
 local SWITCHSID = "urn:upnp-org:serviceId:SwitchPower1"
 local DIMMERSID = "urn:upnp-org:serviceId:Dimming1"
 local COLORSID = "urn:micasaverde-com:serviceId:Color1"
-local HADEVICESID = "urn:micasaverde-com:serviceId:HaDevice1"
+-- local HADEVICESID = "urn:micasaverde-com:serviceId:HaDevice1"
 
 local pluginDevice
 local tickTasks = {}
@@ -39,6 +39,14 @@ local isALTUI = false
 local isOpenLuup = false
 
 local DISCOVERYPERIOD = 15
+
+local Roscolux={ { num="0", name="clear", rgb="255,255,255" },{ num="1", name="light bastard amber", rgb="255,96,96" },{ num="2", name="bastard amber", rgb="255,192,160" },{ num="3", name="dark bastard amber", rgb="255,159,120" },{ num="4", name="medium bastard amber", rgb="253,157,125" },{ num="5", name="rose tint", rgb="254,190,209" },{ num="6", name="no color straw", rgb="253,255,215" },{ num="7", name="pale yellow", rgb="255,255,176" },{ num="8", name="pale gold", rgb="239,207,143" },{ num="9", name="pale amber gold", rgb="253,183,79" },{ num="10", name="medium yellow", rgb="255,255,32" },{ num="11", name="light straw", rgb="253,204,36" },{ num="12", name="straw", rgb="239,255,0" },{ num="13", name="straw tint", rgb="254,198,114" },{ num="14", name="medium straw", rgb="254,171,48" },{ num="15", name="deep straw", rgb="248,149,1" },{ num="16", name="light amber", rgb="255,96,0" },{ num="17", name="light flame", rgb="239,63,32" },{ num="18", name="flame", rgb="240,16,0" },{ num="19", name="fire", rgb="255,4,4" },{ num="20", name="medium amber", rgb="253,140,66" },{ num="21", name="golden amber", rgb="236,96,2" },{ num="22", name="deep amber", rgb="253,64,49" },{ num="23", name="orange", rgb="253,108,66" },{ num="24", name="scarlet", rgb="191,0,0" },{ num="25", name="orange red", rgb="255,0,0" },{ num="26", name="light red", rgb="159,0,0" },{ num="27", name="medium red", rgb="96,0,0" },{ num="30", name="light salmon pink", rgb="254,101,88" },{ num="31", name="salmon pink", rgb="254,99,134" },{ num="32", name="medium salmon pink", rgb="252,1,57" },{ num="33", name="no color pink", rgb="255,128,160" },{ num="34", name="flesh pink", rgb="255,32,64" },{ num="35", name="light pink", rgb="255,164,175" },{ num="36", name="medium pink", rgb="232,91,137" },{ num="37", name="pale rose pink", rgb="255,128,175" },{ num="38", name="light rose", rgb="255,96,175" },{ num="40", name="light salmon", rgb="255,0,0" },{ num="41", name="salmon", rgb="239,0,16" },{ num="42", name="deep salmon", rgb="144,0,0" },{ num="43", name="deep pink", rgb="255,0,112" },{ num="44", name="middle rose", rgb="223,0,112" },{ num="45", name="rose", rgb="144,0,32" },{ num="46", name="magenta", rgb="96,0,0" },{ num="47", name="light rose purple", rgb="64,0,64" },{ num="48", name="rose purple", rgb="183,2,183" },{ num="49", name="medium purple", rgb="112,0,80" },{ num="50", name="mauve", rgb="112,0,0" },{ num="51", name="surprise pink", rgb="255,128,255" },{ num="52", name="light lavender", rgb="175,16,239" },{ num="53", name="pale lavender", rgb="191,192,255" },{ num="54", name="special lavender", rgb="192,160,255" },{ num="55", name="lilac", rgb="109,79,255" },{ num="56", name="gypsy lavender", rgb="64,0,128" },{ num="57", name="lavender", rgb="64,0,128" },{ num="58", name="deep lavender", rgb="64,0,128" },{ num="59", name="indigo", rgb="48,0,80" },{ num="60", name="no color blue", rgb="128,192,255" },{ num="61", name="mist blue", rgb="80,192,208" },{ num="62", name="booster blue", rgb="80,144,191" },{ num="63", name="pale blue", rgb="16,144,191" },{ num="64", name="light steel blue", rgb="0,80,240" },{ num="65", name="daylight blue", rgb="0,64,255" },{ num="66", name="cool blue", rgb="0,192,192" },{ num="67", name="light sky blue", rgb="0,96,255" },{ num="68", name="sky blue", rgb="0,0,208" },{ num="69", name="brilliant blue", rgb="0,64,223" },{ num="70", name="nile blue", rgb="16,160,176" },{ num="71", name="sea blue", rgb="0,128,144" },{ num="72", name="azure blue", rgb="0,160,207" },{ num="73", name="peacock blue", rgb="16,144,144" },{ num="74", name="night blue", rgb="0,0,176" },{ num="76", name="light green blue", rgb="0,128,144" },{ num="77", name="green blue", rgb="0,128,223" },{ num="78", name="trudy blue", rgb="32,16,176" },{ num="79", name="bright blue", rgb="0,0,208" },{ num="80", name="primary blue", rgb="0,0,128" },{ num="81", name="urban blue", rgb="36,1,201" },{ num="82", name="surprise blue", rgb="16,0,112" },{ num="83", name="medium blue", rgb="0,0,96" },{ num="84", name="zephyr blue", rgb="30,1,163" },{ num="85", name="deep blue", rgb="0,0,96" },{ num="86", name="pea green", rgb="0,143,0" },{ num="87", name="pale yellow green", rgb="192,255,128" },{ num="88", name="light green", rgb="128,255,80" },{ num="89", name="moss green", rgb="0,122,0" },{ num="90", name="dark yellow green", rgb="16,95,0" },{ num="91", name="primary green", rgb="0,64,0" },{ num="92", name="turquoise", rgb="0,191,127" },{ num="93", name="blue green", rgb="0,176,96" },{ num="94", name="kelly green", rgb="46,135,104" },{ num="95", name="medium blue green", rgb="0,96,80" },{ num="96", name="lime", rgb="191,255,0" },{ num="97", name="light grey", rgb="192,192,192" },{ num="98", name="medium grey", rgb="112,112,112" },{ num="99", name="chocolate", rgb="144,112,96" },{ num="120", name="red diffusion", rgb="142,0,0" },{ num="121", name="blue diffusion", rgb="0,0,205" },{ num="122", name="green diffusion", rgb="0,72,0" },{ num="123", name="amber diffusion", rgb="255,45,45" },{ num="124", name="red cyc silk", rgb="151,0,0" },{ num="125", name="blue cyc silk", rgb="0,0,198" },{ num="126", name="green cyc silk", rgb="0,62,0" },{ num="127", name="amber cyc silk", rgb="255,26,26" },{ num="128", name="magenta silk", rgb="81,0,61" },{ num="129", name="sky blue silk", rgb="0,0,251" },{ num="130", name="medium blue green silk", rgb="0,89,74" },{ num="131", name="medium amber silk", rgb="253,126,0" },{ num="150", name="hamburg rose", rgb="254,203,218" },{ num="151", name="hamburg lavender", rgb="197,56,250" },{ num="152", name="hamburg steel blue", rgb="0,0,191" },{ num="304", name="pale apricot", rgb="255,160,128" },{ num="305", name="rose gold", rgb="255,128,96" },{ num="312", name="canary", rgb="252,223,90" },{ num="317", name="apricot", rgb="239,16,0" },{ num="321", name="soft golden amber", rgb="223,32,0" },{ num="337", name="true pink", rgb="255,138,197" },{ num="339", name="broadway pink", rgb="255,0,144" },{ num="342", name="rose pink", rgb="207,0,80" },{ num="344", name="follies pink", rgb="224,0,128" },{ num="355", name="pale violet", rgb="64,32,160" },{ num="356", name="middle lavender", rgb="174,53,255" },{ num="357", name="royal lavender", rgb="48,0,112" },{ num="358", name="rose indigo", rgb="32,0,80" },{ num="359", name="medium violet", rgb="16,0,96" },{ num="378", name="alice blue", rgb="80,0,208" },{ num="383", name="sapphire blue", rgb="26,0,130" },{ num="385", name="royal blue", rgb="0,0,79" },{ num="388", name="gaslight green", rgb="0,224,0" },{ num="389", name="chroma green", rgb="0,127,0" },{ num="397", name="pale grey", rgb="224,224,224" },{ num="3102", name="tough mt2", rgb="255,96,0" },{ num="3106", name="tough mty", rgb="239,63,32" },{ num="3107", name="tough y-1", rgb="253,255,215" },{ num="3114", name="tough uv filter", rgb="255,255,255" },{ num="3134", name="tough mt 54", rgb="239,207,143" },{ num="3202", name="full blue (ctb)", rgb="96,0,223" },{ num="3203", name="three-quarter blue (3/4 ctb)", rgb="0,24,136" },{ num="3204", name="half blue (1/2 ctb)", rgb="128,96,255" },{ num="3206", name="third blue (1/3 ctb)", rgb="176,176,240" },{ num="3208", name="quarter blue (1/4 ctb)", rgb="191,223,255" },{ num="3216", name="eighth blue (1/8 ctb)", rgb="223,223,223" },{ num="3220", name="double blue (2x ctb)", rgb="36,1,201" },{ num="3304", name="tough plusgreen / windowgreen", rgb="112,223,64" },{ num="3308", name="tough minusgreen", rgb="255,0,128" },{ num="3310", name="fluorofilter", rgb="255,39,28" },{ num="3313", name="tough 1/2 minusgreen", rgb="255,0,255" },{ num="3314", name="tough 1/4 minusgreen", rgb="255,128,192" },{ num="3315", name="tough 1/2 plusgreen", rgb="192,255,128" },{ num="3316", name="tough 1/4 plusgreen", rgb="203,255,151" },{ num="3317", name="tough 1/8 plusgreen", rgb="220,255,185" },{ num="3318", name="tough 1/8 minusgreen", rgb="255,128,255" },{ num="3401", name="roscosun 85", rgb="239,80,0" },{ num="3402", name="rosco n.3", rgb="192,192,192" },{ num="3403", name="rosco n.6", rgb="112,112,112" },{ num="3404", name="rosco n.9", rgb="32,32,32" },{ num="3405", name="roscosun 85n.3", rgb="144,112,96" },{ num="3406", name="roscosun 85n.6", rgb="112,80,80" },{ num="3407", name="roscosun (cto)", rgb="191,64,0" },{ num="3408", name="roscosun (1/2 cto)", rgb="255,128,0" },{ num="3409", name="roscosun (1/4 cto)", rgb="255,191,143" },{ num="3410", name="roscosun (1/8 cto)", rgb="255,224,192" },{ num="3411", name="roscosun (3/4 cto)", rgb="215,32,0" },{ num="3415", name="rosco n.15", rgb="224,224,224" },{ num="3441", name="full straw (cts)", rgb="255,96,0" },{ num="3442", name="half straw (1/2 cts)", rgb="254,198,114" },{ num="3443", name="quarter straw (1/4 cts)", rgb="239,207,143" },{ num="3444", name="eighth straw (1/8 cts)", rgb="254,232,186" },{ num="3761", name="roscolex 85", rgb="255,96,32" } }
+
+local GamColor={ { num="105", name="antique rose", rgb="188,251,147" },{ num="106", name="1/2 antique rose", rgb="165,183,205" },{ num="107", name="1/4 antique rose", rgb="180,252,247" },{ num="108", name="1/8 antique rose", rgb="255,171,160" },{ num="110", name="dark rose", rgb="233,33,163" },{ num="120", name="bright pink", rgb="237,61,149" },{ num="130", name="rose", rgb="241,90,154" },{ num="140", name="dark magenta", rgb="185,13,164" },{ num="150", name="pink punch", rgb="192,0,96" },{ num="155", name="light pink", rgb="251,170,210" },{ num="160", name="chorus pink", rgb="252,163,209" },{ num="170", name="flesh pink", rgb="250,103,180" },{ num="180", name="cherry", rgb="249,28,94" },{ num="190", name="cold pink", rgb="252,141,174" },{ num="195", name="nymph pink", rgb="253,145,183" },{ num="220", name="pink magenta", rgb="206,4,75" },{ num="235", name="pink red", rgb="249,53,72" },{ num="245", name="light red", rgb="208,6,21" },{ num="250", name="medium red xt", rgb="116,0,16" },{ num="260", name="rosy amber", rgb="252,124,153" },{ num="270", name="red orange", rgb="111,0,0" },{ num="280", name="fire red", rgb="255,9,9" },{ num="290", name="fire orange", rgb="230,17,0" },{ num="305", name="french rose", rgb="254,150,171" },{ num="315", name="autumn glory", rgb="253,71,62" },{ num="320", name="peach", rgb="252,85,37" },{ num="323", name="indian summer", rgb="255,32,32" },{ num="325", name="bastard amber", rgb="254,173,150" },{ num="330", name="sepia", rgb="182,119,109" },{ num="335", name="coral", rgb="159,0,0" },{ num="340", name="light bastard amber", rgb="254,208,167" },{ num="343", name="honey", rgb="112,16,0" },{ num="345", name="deep amber", rgb="255,0,0" },{ num="350", name="dark amber", rgb="252,103,39" },{ num="360", name="amber blush", rgb="240,206,179" },{ num="363", name="sand", rgb="255,223,175" },{ num="364", name="pale honey", rgb="223,147,64" },{ num="365", name="warm straw", rgb="240,206,179" },{ num="370", name="spice", rgb="112,80,80" },{ num="375", name="flame", rgb="252,123,54" },{ num="380", name="golden tan", rgb="124,82,69" },{ num="385", name="light amber", rgb="253,180,136" },{ num="390", name="walnut", rgb="54,39,41" },{ num="420", name="medium amber", rgb="253,202,96" },{ num="440", name="very light straw", rgb="254,232,186" },{ num="450", name="saffron", rgb="230,157,23" },{ num="460", name="mellow yellow", rgb="248,252,82" },{ num="470", name="pale gold", rgb="239,255,57" },{ num="480", name="medium yellow", rgb="245,235,27" },{ num="510", name="no color straw", rgb="252,249,186" },{ num="520", name="new straw", rgb="198,255,167" },{ num="535", name="lime", rgb="96,255,137" },{ num="540", name="pale green", rgb="145,255,92" },{ num="570", name="light green yellow", rgb="26,226,10" },{ num="650", name="grass green", rgb="0,106,0" },{ num="655", name="rich green", rgb="0,12,0" },{ num="660", name="medium green", rgb="0,179,4" },{ num="680", name="kelly green", rgb="38,181,113" },{ num="685", name="pistachio", rgb="0,44,16" },{ num="690", name="bluegrass", rgb="0,56,32" },{ num="710", name="blue green", rgb="58,118,97" },{ num="720", name="light steel blue", rgb="119,227,255" },{ num="725", name="princess blue", rgb="0,88,112" },{ num="730", name="azure blue", rgb="0,102,123" },{ num="740", name="off blue", rgb="0,167,230" },{ num="750", name="nile blue", rgb="0,130,168" },{ num="760", name="aqua blue", rgb="34,111,119" },{ num="770", name="christel blue", rgb="47,152,164" },{ num="780", name="shark blue", rgb="54,176,190" },{ num="790", name="electric blue", rgb="104,157,255" },{ num="810", name="moon blue", rgb="0,62,176" },{ num="815", name="moody blue", rgb="0,52,108" },{ num="820", name="full light blue", rgb="147,185,255" },{ num="830", name="north sky blue", rgb="219,198,255" },{ num="835", name="aztec blue", rgb="0,0,92" },{ num="840", name="steel blue", rgb="94,0,249" },{ num="842", name="whisper blue", rgb="0,138,255" },{ num="845", name="cobalt", rgb="0,0,88" },{ num="847", name="city blue", rgb="0,0,96" },{ num="848", name="bonus blue", rgb="0,0,108" },{ num="850", name="blue (primary)", rgb="64,0,170" },{ num="860", name="sky blue", rgb="152,89,255" },{ num="870", name="winter blue", rgb="0,211,255" },{ num="880", name="daylight blue", rgb="88,0,236" },{ num="882", name="southern sky", rgb="0,28,72" },{ num="885", name="blue ice", rgb="0,132,160" },{ num="888", name="blue belle", rgb="0,24,56" },{ num="890", name="dark sky blue", rgb="2,9,136" },{ num="905", name="dark blue", rgb="0,0,108" },{ num="910", name="alice blue", rgb="16,0,100" },{ num="915", name="twilight", rgb="12,0,92" },{ num="920", name="pale lavender", rgb="241,219,255" },{ num="925", name="cosmic blue", rgb="0,0,12" },{ num="930", name="real congo blue", rgb="0,0,16" },{ num="940", name="light purple", rgb="7,26,190" },{ num="945", name="royal purple", rgb="69,2,108" },{ num="948", name="african violet", rgb="12,0,32" },{ num="950", name="purple", rgb="65,2,98" },{ num="960", name="medium lavender", rgb="138,4,210" },{ num="970", name="special lavender", rgb="175,34,251" },{ num="980", name="surprise pink", rgb="224,170,253" },{ num="990", name="dark lavender", rgb="105,4,159" },{ num="995", name="orchid", rgb="36,0,28" },{ num="1510", name="uv shield", rgb="255,255,255" },{ num="1514", name=".15 nd", rgb="199,184,189" },{ num="1515", name=".3 nd", rgb="160,160,144" },{ num="1516", name=".6 nd", rgb="116,116,116" },{ num="1517", name=".9 nd", rgb="100,100,100" },{ num="1518", name="1.2 nd", rgb="16,16,16" },{ num="1520", name="extra blue ctb", rgb="0,0,120" },{ num="1523", name="full blue ctb", rgb="0,0,96" },{ num="1526", name="3/4 blue ctb", rgb="0,24,136" },{ num="1529", name="1/2 blue ctb", rgb="20,20,220" },{ num="1532", name="1/4 blue ctb", rgb="112,160,224" },{ num="1535", name="1/8 blue ctb", rgb="104,104,217" },{ num="1540", name="extra cto", rgb="255,0,0" },{ num="1543", name="full cto", rgb="233,24,0" },{ num="1546", name="3/4 cto", rgb="215,32,0" },{ num="1549", name="1/2 cto", rgb="92,32,0" },{ num="1552", name="1/4 cto", rgb="184,88,4" },{ num="1555", name="1/8 cto", rgb="252,132,44" },{ num="1556", name="cto/.3 nd", rgb="61,30,30" },{ num="1557", name="cto/.6 nd", rgb="30,8,8" },{ num="1558", name="cto/.9 nd", rgb="16,8,8" },{ num="1560", name="y-1", rgb="225,225,92" },{ num="1565", name="mty", rgb="255,33,0" },{ num="1570", name="mt2", rgb="208,47,0" },{ num="1575", name="1/2 mt2", rgb="202,104,0" },{ num="1580", name="minusgreen", rgb="104,16,48" },{ num="1581", name="3/4 minusgreen", rgb="104,16,48" },{ num="1582", name="1/2 minusgreen", rgb="255,64,236" },{ num="1583", name="1/4 minusgreen", rgb="255,97,127" },{ num="1584", name="1/8 minusgreen", rgb="255,129,184" },{ num="1585", name="plusgreen", rgb="56,80,8" },{ num="1587", name="1/2 plusgreen", rgb="142,170,0" },{ num="1588", name="1/4 plusgreen", rgb="130,160,0" },{ num="1589", name="1/8 plusgreen", rgb="130,160,0" },{ num="1590", name="fluorofilter cw", rgb="96,0,0" } }
+
+local Lee={ { num="2", name="rose pink", rgb="217,0,145" },{ num="3", name="lavender tint", rgb="219,177,255" },{ num="4", name="medium bastard amber", rgb="255,125,63" },{ num="7", name="pale yellow", rgb="255,255,157" },{ num="8", name="dark salmon", rgb="255,39,28" },{ num="9", name="pale amber gold", rgb="255,160,64" },{ num="10", name="medium yellow", rgb="255,220,0" },{ num="13", name="straw tint", rgb="255,181,98" },{ num="15", name="deep straw", rgb="253,130,0" },{ num="19", name="fire", rgb="252,1,7" },{ num="20", name="medium amber", rgb="255,155,106" },{ num="21", name="gold amber", rgb="253,92,15" },{ num="22", name="dark amber", rgb="223,32,32" },{ num="24", name="scarlet", rgb="223,0,0" },{ num="26", name="bright red", rgb="202,0,0" },{ num="27", name="medium red", rgb="66,0,8" },{ num="35", name="light pink", rgb="255,92,130" },{ num="36", name="mesium pink", rgb="255,98,133" },{ num="46", name="dark magenta", rgb="96,0,0" },{ num="48", name="rose purple", rgb="96,0,92" },{ num="52", name="light lavender", rgb="99,0,173" },{ num="53", name="paler lavender", rgb="162,192,255" },{ num="58", name="lavender", rgb="64,0,128" },{ num="61", name="mist blue", rgb="89,219,251" },{ num="63", name="pale blue", rgb="0,160,223" },{ num="68", name="sky blue", rgb="0,0,147" },{ num="79", name="just blue", rgb="11,11,153" },{ num="85", name="deeper blue", rgb="0,0,66" },{ num="89", name="moss green", rgb="0,159,0" },{ num="90", name="dark yellow green", rgb="4,61,0" },{ num="101", name="yellow", rgb="255,191,0" },{ num="102", name="light amber", rgb="251,210,17" },{ num="103", name="straw", rgb="255,222,181" },{ num="104", name="deep amber", rgb="249,163,34" },{ num="105", name="orange", rgb="253,121,2" },{ num="106", name="primary red", rgb="128,0,0" },{ num="107", name="light rose", rgb="255,79,109" },{ num="109", name="light salman", rgb="241,103,103" },{ num="110", name="middle rose", rgb="255,104,168" },{ num="111", name="dark pink", rgb="236,55,150" },{ num="113", name="magenta", rgb="176,0,0" },{ num="115", name="peacock blue", rgb="21,155,141" },{ num="116", name="medium blue-green", rgb="0,79,32" },{ num="117", name="steel blue", rgb="0,223,255" },{ num="118", name="light blue", rgb="17,118,255" },{ num="119", name="dark blue", rgb="0,16,128" },{ num="120", name="deep blue", rgb="35,29,118" },{ num="121", name="lee green", rgb="0,191,0" },{ num="122", name="fern green", rgb="0,232,0" },{ num="124", name="dark green", rgb="0,164,0" },{ num="126", name="mauve", rgb="96,0,112" },{ num="127", name="smokey pink", rgb="112,48,64" },{ num="128", name="bright pink", rgb="204,19,116" },{ num="129", name="heavy frost", rgb="255,255,255" },{ num="130", name="clear", rgb="255,255,255" },{ num="132", name="medium blue", rgb="0,0,192" },{ num="134", name="golden amber", rgb="254,116,69" },{ num="135", name="deep golden amber", rgb="159,34,34" },{ num="136", name="pale lavender", rgb="175,128,223" },{ num="137", name="special lavender", rgb="83,41,207" },{ num="138", name="pale green", rgb="128,255,32" },{ num="139", name="primary green", rgb="0,80,0" },{ num="141", name="bright blue", rgb="0,48,208" },{ num="142", name="pale violet", rgb="48,0,176" },{ num="143", name="pale navy blue", rgb="1,135,150" },{ num="144", name="no colour blue", rgb="0,112,223" },{ num="147", name="apricot", rgb="255,118,72" },{ num="148", name="bright rose", rgb="221,2,96" },{ num="151", name="gold tint", rgb="255,185,168" },{ num="152", name="pale gold", rgb="255,201,174" },{ num="153", name="pale salmon", rgb="255,166,184" },{ num="154", name="pale rose", rgb="255,204,191" },{ num="156", name="chocolate", rgb="120,92,92" },{ num="157", name="pink", rgb="224,0,80" },{ num="158", name="deep orange", rgb="253,94,40" },{ num="159", name="no color straw", rgb="255,255,202" },{ num="161", name="slate blue", rgb="16,48,144" },{ num="162", name="bastard amber", rgb="255,160,128" },{ num="164", name="flame red", rgb="227,0,0" },{ num="165", name="daylight blue", rgb="0,64,255" },{ num="166", name="pale red", rgb="235,3,102" },{ num="170", name="deep lavender", rgb="181,0,219" },{ num="174", name="dark steel blue", rgb="0,69,253" },{ num="176", name="loving amber", rgb="239,112,96" },{ num="179", name="chrome orange", rgb="255,125,47" },{ num="180", name="dark lavender", rgb="111,0,223" },{ num="181", name="congo blue", rgb="13,4,113" },{ num="182", name="light red", rgb="144,0,0" },{ num="183", name="moonlight blue", rgb="32,96,255" },{ num="184", name="cosmetic peach", rgb="255,239,223" },{ num="185", name="cosmetic burgundy", rgb="192,159,160" },{ num="186", name="cosmetic silver rose", rgb="255,160,207" },{ num="187", name="cosmetic rouge", rgb="255,155,134" },{ num="188", name="cosmetic highlight", rgb="255,210,200" },{ num="189", name="cosmetic silver moss", rgb="213,255,181" },{ num="190", name="cosmetic emerald", rgb="255,244,215" },{ num="191", name="cosmetic aqua blue", rgb="96,255,223" },{ num="192", name="flesh pink", rgb="223,32,96" },{ num="193", name="rosy gold", rgb="255,81,103" },{ num="194", name="surprise pink", rgb="96,64,191" },{ num="195", name="zenith blue", rgb="0,16,96" },{ num="196", name="true blue", rgb="0,64,255" },{ num="197", name="alice blue", rgb="32,64,191" },{ num="200", name="double c.t. blue", rgb="36,1,201" },{ num="201", name="full c.t. blue", rgb="0,128,255" },{ num="202", name="1/2 c.t. blue", rgb="0,128,191" },{ num="203", name="1/4 c.t. blue", rgb="215,243,255" },{ num="204", name="full c.t. orange", rgb="254,153,86" },{ num="205", name="1/2 c.t. orange", rgb="255,171,87" },{ num="206", name="1/4 c.t. orange", rgb="255,194,134" },{ num="207", name="c.t. orange +.3 nd", rgb="144,112,96" },{ num="208", name="c.t. orange +.6 nd", rgb="112,80,80" },{ num="209", name=".3 nd", rgb="192,192,192" },{ num="210", name=".6 nd", rgb="112,112,112" },{ num="211", name=".9 nd", rgb="32,32,32" },{ num="212", name="l.c.t. yellow", rgb="255,255,157" },{ num="213", name="white flame green", rgb="192,255,128" },{ num="218", name="1/8 c.t. blue", rgb="223,223,223" },{ num="219", name="lee fluorescent green", rgb="0,136,113" },{ num="223", name="1/8 c.t. orange", rgb="255,216,176" },{ num="226", name="lee u.v.", rgb="255,255,255" },{ num="230", name="super correction l.c.t. yellow", rgb="166,131,83" },{ num="232", name="super white flame", rgb="198,135,149" },{ num="236", name="h.m.i. to tungsten", rgb="255,96,0" },{ num="237", name="c.i.d. to tungsten", rgb="253,92,15" },{ num="238", name="c.s.i. to tungsten", rgb="201,67,56" },{ num="241", name="lee fluorescent 5700k", rgb="13,152,155" },{ num="242", name="lee fluorescent 4300k", rgb="50,181,135" },{ num="243", name="lee fluorescent 3600k", rgb="0,206,114" },{ num="244", name="lee plus green", rgb="112,223,64" },{ num="245", name="half plus green", rgb="192,255,128" },{ num="246", name="quarter plus green", rgb="203,255,151" },{ num="247", name="lee minus green", rgb="255,0,128" },{ num="248", name="half minus green", rgb="255,0,255" },{ num="249", name="quarter minus green", rgb="255,128,192" },{ num="278", name="eighth plus green", rgb="220,255,151" },{ num="279", name="eighth minus green", rgb="255,128,255" },{ num="281", name="3/4 c.t. blue", rgb="0,24,136" },{ num="285", name="3/4 c.t. orange", rgb="215,32,0" },{ num="298", name=".15 nd", rgb="224,224,224" },{ num="299", name="1.2 nd", rgb="16,16,16" },{ num="328", name="follies pink", rgb="204,0,43" },{ num="332", name="special rose pink", rgb="195,0,75" },{ num="343", name="special medium lavender", rgb="32,0,128" },{ num="344", name="violet", rgb="32,32,191" },{ num="353", name="lighter blue", rgb="27,136,219" },{ num="354", name="special steel blue", rgb="0,223,223" },{ num="363", name="special medium blue", rgb="0,0,96" },{ num="441", name="full c.t. straw", rgb="255,96,0" },{ num="442", name="half c.t. straw", rgb="254,198,114" },{ num="443", name="quarter c.t. straw", rgb="239,207,143" },{ num="444", name="eighth c.t. straw", rgb="254,232,186" } }
+
+local mfgcolor = { r=Roscolux, l=Lee, g=GamColor }
 
 local function dump(t, seen)
     if t == nil then return "nil" end
@@ -131,9 +139,9 @@ end
 -- Array to map, where f(elem) returns key[,value]
 local function map( arr, f, res )
     res = res or {}
-    for _,x in ipairs( arr ) do
+    for ix,x in ipairs( arr ) do
         if f then
-            local k,v = f( x )
+            local k,v = f( x, ix )
             res[k] = (v == nil) and x or v
         else
             res[x] = x
@@ -332,6 +340,44 @@ local function sendDeviceCommand( cmd, params, bulb, leaveOpen )
     return false
 end
 
+-- Decode color to Vera-style. -ish. If the color spec starts with "!", then
+-- see if we're Roscolux or Lee, and try to map.
+local function decodeColor( color )
+    local newColor = tostring( color ):lower()
+    local name
+    local mfg,num = newColor:match( "^.([a-z])(%d+)" )
+    if not mfg then
+        mfg,name = newColor:match( "^.([a-z])(.*)" )
+    end
+    D("decodeColor() got mfg=%1 num=%2 name=%3", mfg, num, name)
+    if not mfg then return color end -- No good, just return what we got.
+    local t = mfgcolor[mfg]
+    if t then 
+        for _,v in ipairs( t ) do
+            if name and v.name == name then return v.rgb end
+            if v.num == num then return v.rgb end
+        end
+    else
+        L({level=2,msg="SetColor can't find manufacturer table for %1"}, color)
+    end
+    -- No luck.
+    return color
+end
+
+-- Approximate RGB from color temperature. We don't both with most of the algorithm
+-- linked below because the lower limit is 2000 (Vera) and the upper is 6500 (Yeelight).
+-- We're also not going nuts with precision, since the only reason we're doing this is
+-- to make the color spot on the UI look somewhat sensible when in temperature mode.
+-- Ref: https://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+local function approximateRGB( t )
+    local function bound( v ) if v < 0 then v=0 elseif v > 255 then v=255 end return math.floor(v) end
+    local r,g,b = 255
+    t = t / 100
+    g = bound( 99.471 * math.log(t) - 161.120 )
+    b = bound( 138.518 * math.log(t-10) - 305.048 )
+    return r,g,b
+end
+
 local checkBulb -- forward decl
 local function checkBulbProp( bulb, taskid, argv )
     D("checkBulbProp(%1,%2,%3)", bulb, taskid, argv)
@@ -340,8 +386,8 @@ local function checkBulbProp( bulb, taskid, argv )
     while true do
         local p, err, part = sock:receive()
         if p then
-            D("checkBulbProp() handling response data")
-            local data,pos,err = json.decode( p )
+            D("checkBulbProp() handling response data: %1", p)
+            local data = json.decode( p )
             if data and data.result and type(data.result) == "table" then
                 setVar( SWITCHSID, "Status", (data.result[1]=="on") and 1 or 0, bulb )
                 setVar( SWITCHSID, "Target", (data.result[1]=="on") and 1 or 0, bulb )
@@ -368,6 +414,7 @@ local function checkBulbProp( bulb, taskid, argv )
                         w = math.floor( ( v - 2000 ) / 3500 * 255 )
                         targetColor = string.format("W%d", w)
                     end
+                    r,g,b = approximateRGB( v )
                 end -- 3=HSV, we don't support
                 setVar( COLORSID, "CurrentColor", string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b ), bulb )
                 setVar( COLORSID, "TargetColor", targetColor, bulb )
@@ -684,7 +731,16 @@ function actionBrightness( newVal, dev )
 end
 
 function actionSetColor( newVal, dev )
+    D("actionSetColor(%1,%2)", newVal, dev)
     assert(luup.devices[dev].device_type == BULBTYPE)
+    if string.match( tostring(newVal), "!" ) then
+        local t = decodeColor( newVal )
+        if t == newVal then L({level=2,msg="SetColor lookup for %1 failed"}, newVal)
+        else
+            L("SetColor lookup for %1 returns RGB %2", newVal, t)
+            newVal = t
+        end
+    end
     setVar( COLORSID, "TargetColor", newVal, dev )
     local status = getVarNumeric( "Status", 0, dev, SWITCHSID )
     if status == 0 then
@@ -692,29 +748,30 @@ function actionSetColor( newVal, dev )
         setVar( SWITCHSID, "Target", 1, dev )
         setVar( SWITCHSID, "Status", 1, dev )
     end
-    local w,c,r,g,b = 0,0,0,0,0
     local s = split( newVal )
     if #s == 3 then
         -- R,G,B
+        local r, g, b
         r = tonumber(s[1])
         g = tonumber(s[2])
         b = tonumber(s[3])
         local rgb = r * 65536 + g * 256 + b
         sendDeviceCommand( "set_rgb", { rgb, "smooth", 500 }, dev )
-        setVar( COLORSID, "CurrentColor", newVal, dev )
-        setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), dev )
     else
         -- Wnnn, Dnnn (color range)
         local code,temp = newVal:upper():match( "([WD])(%d+)" )
+        local t
         if code == "W" then
-            w = tonumber(temp) or 128
-            temp = 2000 + math.floor( w * 3500 / 255 )
+            t = tonumber(temp) or 128
+            temp = 2000 + math.floor( t * 3500 / 255 )
         elseif code == "D" then
-            c = tonumber(temp) or 128
-            temp = 5500 + math.floor( c * 3500 / 255 )
+            t = tonumber(temp) or 128
+            temp = 5500 + math.floor( t * 3500 / 255 )
+            if temp > 6500 then temp = 6500 end
         elseif code == nil then
             -- Try to evaluate as integer (2000-9000K)
-            temp = tonumber(newVal) or 0
+            temp = tonumber(newVal) or 2700
+            if temp < 1600 then temp = 1600 elseif temp > 6500 then temp = 6500 end
             if temp >= 2000 and temp <= 5500 then
                 w = math.floor( ( temp - 2000 ) / 3500 * 255 )
             elseif temp > 5500 and temp <= 9000 then
@@ -725,9 +782,14 @@ function actionSetColor( newVal, dev )
             end
         end
         sendDeviceCommand( "set_ct_abx", { temp, "smooth", 500 }, dev )
-        -- Well this is... bizarre.
-        setVar( COLORSID, "CurrentColor", string.format("0=%d,1=%d,2=%d,3=%d,4=%d", w, c, r, g, b), dev )
     end
+    --[[
+    -- Well this is... bizarre.
+    local cc = string.format("0=%d,1=%d,2=%d,3=%d,4=%d", w, c, r, g, b)
+    D("actionSetColor() newVal %1, new CurrentColor %2", newVal, cc)
+    setVar( COLORSID, "CurrentColor", cc, dev )
+    setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), dev )
+    --]]
 end
 
 -- Run Yeelight discovery
@@ -772,7 +834,7 @@ function jobDiscoverIP( pdev, addr )
                 local pfx = string.char( 96 + math.random( 26 ) )
                 local id = string.format( "%s%x", pfx, math.floor( socket.gettime() * 100 ) )
                 local name = "yeelight" .. id
-                devData[tostring(dev)].discoveryResponses = { [id]={ Id=id, Name=name, Address=addr..":"..port, Info={} } }
+                devData[tostring(pdev)].discoveryResponses = { [id]={ Id=id, Name=name, Address=addr..":"..port, Info={} } }
                 processDiscoveryResponses( pdev )
                 return 4,0
             end
@@ -849,7 +911,7 @@ local function masterTick(pdev,taskid)
     D("masterTick(%1,%2)", pdev,taskid)
     assert(pdev == pluginDevice)
     -- Set default time for next master tick
-    local nextTick = math.floor( os.time() / 60 + 1 ) * 60
+    -- local nextTick = math.floor( os.time() / 60 + 1 ) * 60
 
     -- Do master tick work here
 
@@ -917,7 +979,6 @@ function startPlugin( pdev )
 
     -- More inits
     if not isEnabled( pdev ) then
-        clearChildren( pdev )
         gatewayStatus("DISABLED")
         return true, "Disabled", _PLUGIN_NAME
     end
@@ -950,7 +1011,6 @@ function taskTickCallback(p)
     end
 
     if not isEnabled( pluginDevice ) then
-        clearChildren( pluginDevice )
         gatewayStatus( "DISABLED" )
         return
     end
