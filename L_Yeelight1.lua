@@ -352,7 +352,7 @@ local function decodeColor( color )
     D("decodeColor() got mfg=%1 num=%2 name=%3", mfg, num, name)
     if not mfg then return color end -- No good, just return what we got.
     local t = mfgcolor[mfg]
-    if t then 
+    if t then
         for _,v in ipairs( t ) do
             if name and v.name == name then return v.rgb end
             if v.num == num then return v.rgb end
@@ -470,24 +470,24 @@ local function initBulb( bulb )
     initVar( "UpdateInterval", "", bulb, MYSID )
     initVar( "HexColor", "808080", bulb, MYSID )
     initVar( "AuthoritativeForDevice", "0", bulb, MYSID )
-    
+
     initVar( "Target", "0", bulb, SWITCHSID )
     initVar( "Status", "-1", bulb, SWITCHSID )
-    
+
     initVar( "LoadLevelTarget", "100", bulb, DIMMERSID )
     initVar( "LoadLevelStatus", "0", bulb, DIMMERSID )
     initVar( "TurnOnBeforeDim", "0", bulb, DIMMERSID )
     initVar( "AllowZeroLevel", "0", bulb, DIMMERSID )
-    
+
     initVar( "TargetColor", "W51", bulb, COLORSID )
     initVar( "CurrentColor", "", bulb, COLORSID )
-    
+
     local s = getVarNumeric( "Version", 0, bulb, MYSID )
     if s < 000002 then
         luup.attr_set( "category_num", "2", bulb )
         luup.attr_set( "subcategory_num", "4", bulb )
     end
-    
+
     setVar( MYSID, "Version", _CONFIGVERSION, bulb )
 end
 
@@ -922,7 +922,7 @@ end
 
 -- Start plugin running.
 function startPlugin( pdev )
-    L("plugin version %2, device %1 (%3)", pdev, _PLUGIN_VERSION, luup.devices[pdev].description)
+    L("plugin version %2 master device %3 (#%1)", pdev, _PLUGIN_VERSION, luup.devices[pdev].description)
 
     luup.variable_set( MYSID, "Message", "Initializing...", pdev )
 
@@ -978,7 +978,13 @@ function startPlugin( pdev )
     plugin_runOnce( pdev )
 
     -- More inits
-    if not isEnabled( pdev ) then
+    local enabled = isEnabled( pdev )
+    for _,d in ipairs( getChildDevices( nil, pdev ) or {} ) do
+        luup.attr_set( 'invisible', enabled and 0 or 1, d )
+    end
+    luup.attr_set( 'invisible', 0, pdev )
+    if not enabled then
+        L{level=2,msg="disabled (see Enabled state variable)"}
         gatewayStatus("DISABLED")
         return true, "Disabled", _PLUGIN_NAME
     end
@@ -1052,12 +1058,6 @@ function taskTickCallback(p)
                 nextTick = v.when
             end
         end
-    end
-
-    -- Have we been disabled?
-    if not isEnabled( pluginDevice ) then
-        gatewayStatus("DISABLED")
-        return
     end
 
     -- Figure out next master tick, or don't resched if no tasks waiting.
