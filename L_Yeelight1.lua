@@ -1,6 +1,6 @@
 --[[
     L_Yeelight1.lua - Core module for Yeelight
-    Copyright 2017,2018 Patrick H. Rigney, All Rights Reserved.
+    Copyright 2019 Patrick H. Rigney, All Rights Reserved.
     This file is part of the Yeelight for Vera HA controllers.
 --]]
 --luacheck: std lua51,module,read globals luup,ignore 542 611 612 614 111/_,no max line length
@@ -132,7 +132,7 @@ end
 local function split( str, sep )
     if sep == nil then sep = "," end
     local arr = {}
-    if #str == 0 then return arr, 0 end
+    if #(str or "") == 0 then return arr, 0 end
     local rest = string.gsub( str or "", "([^" .. sep .. "]*)" .. sep, function( m ) table.insert( arr, m ) return "" end )
     table.insert( arr, rest )
     return arr, #arr
@@ -1145,6 +1145,7 @@ function startPlugin( pdev )
     scheduleDelay( { id="master", func=masterTick, owner=pdev }, 5 )
     local s = luup.variable_get( MYSID, "LocalColorProfiles", pdev ) or ""
     localColors = json.decode( s ) or {}
+    luup.variable_watch( 'yeelightWatchCallback', MYSID, "LocalColorProfiles", pdev )
 
     -- Start bulbs
     local count = startBulbs( pdev )
@@ -1232,6 +1233,10 @@ end
 function watchCallback( dev, sid, var, oldVal, newVal )
     D("watchCallback(%1,%2,%3,%4,%5)", dev, sid, var, oldVal, newVal)
     assert(var ~= nil) -- nil if service or device watch (can happen on openLuup)
+    if sid == MYSID and var == "LocalColorProfiles" then
+        local s = luup.variable_get( MYSID, "LocalColorProfiles", pdev ) or ""
+        localColors = json.decode( s ) or {}
+    end
 end
 
 local EOL = "\r\n"
