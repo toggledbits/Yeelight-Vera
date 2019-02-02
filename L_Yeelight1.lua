@@ -11,7 +11,7 @@ local debugMode = false
 
 local _PLUGIN_ID = 99999
 local _PLUGIN_NAME = "Yeelight"
-local _PLUGIN_VERSION = "1.1develop"
+local _PLUGIN_VERSION = "1.1develop-19033"
 local _PLUGIN_URL = "https://www.toggledbits.com/"
 local _CONFIGVERSION = 000004
 
@@ -503,6 +503,8 @@ local function initBulb( bulb )
         luup.attr_set( "subcategory_num", "4", bulb )
         luup.attr_set( "device_json", "D_YeelightRGBLight1.json", bulb )
         
+        luup.variable_set( MYSID, "Version", _CONFIGVERSION, bulb ) -- force
+        
         return true -- signal reload required for changes made.
     end
     
@@ -510,7 +512,7 @@ local function initBulb( bulb )
         luup.attr_set( "category_num", "2", bulb )
         luup.attr_set( "subcategory_num", "4", bulb )
         luup.attr_set( "device_json", "D_YeelightRGBLight1.json", bulb )
-        setVar( MYSID, "Version", _CONFIGVERSION, bulb )
+        luup.variable_set( MYSID, "Version", _CONFIGVERSION, bulb ) -- force
         return true -- signal reload requires for changes made
     end
 
