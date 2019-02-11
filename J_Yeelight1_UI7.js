@@ -4,7 +4,7 @@
  * Configuration interface for Yeelight
  *
  * Copyright 2019 Patrick H. Rigney, All Rights Reserved.
- * This file is part of Yeelight. For license information, see LICENSE at https://github.com/toggledbits/Yeelight
+ * This file is part of Yeelight. For license information, see LICENSE at https://github.com/toggledbits/Yeelight-Vera
  */
 /* globals api,jQuery,$,MultiBox */
 
