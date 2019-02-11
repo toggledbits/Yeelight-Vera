@@ -12,12 +12,20 @@
             <defaultValue>0</defaultValue>
         </stateVariable>
         <stateVariable sendEvents="no">
-            <name>misc_arg</name>
+            <name>A_ARG_TYPE_string</name>
             <dataType>string</dataType>
         </stateVariable>
         <stateVariable sendEvents="no">
-            <name>bool_arg</name>
+            <name>A_ARG_TYPE_boolean</name>
             <dataType>boolean</dataType>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>A_ARG_TYPE_ui4</name>
+            <dataType>ui4</dataType>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>X_getprofileresult</name>
+            <dataType>string</dataType>
         </stateVariable>
     </serviceStateTable>
     <actionList>
@@ -32,7 +40,68 @@
                 <argument>
                    <name>IPAddress</name>
                    <direction>in</direction>
-                   <relatedStateVariable>misc_arg</relatedStateVariable>
+                   <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>SaveCurrentColor</name>
+            <argumentList>
+                <argument>
+                    <name>DeviceNum</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ui4</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>ProfileName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>RestoreColorProfile</name>
+            <argumentList>
+                <argument>
+                    <name>DeviceList</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>ProfileName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>SaveColorProfile</name>
+            <argumentList>
+                <argument>
+                    <name>RGB</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>ProfileName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+        <action>
+            <name>GetColorProfile</name>
+            <argumentList>
+                <argument>
+                    <name>ProfileName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>RGBColor</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>X_getprofileresult</relatedStateVariable>
+                    <retval/>
                 </argument>
             </argumentList>
         </action>

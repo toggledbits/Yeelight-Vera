@@ -58,6 +58,16 @@ proves inconvenient, you can change the `UpdateInterval` state variable in the b
 device. Keep in mind, however, that very small intervals (less than 60 seconds), may increase the load on your Vera (for likely
 very little average benefit).
 
+## Special Feature: Gel Colors
+
+The plugin has conversion tables for approximations of various color gels (Roscolux, Lee Filters, and GamColor). By using the
+`SetColor` action and passing a specially formatted string, you can have the plugin set the bulb to a named or numbered color. The
+format is "!_xn_", where "!" is a literal exclamation mark, _x_ is the manufacturer code (currently R=Roscolux, L=Lee Filters, G=GamColor),
+and _n_ is the numeric code or string color name. For example, "!r66" sets Roscolux "cool blue", which could also be done by sending
+"!rcool blue". Note that case is not significant in these strings for the manufacturer or color name.
+
+It should go without saying that this use of the `SetColor` action is an extension by this plugin, and this feature is unlikely to be supported in products not controlled by this plugin.
+
 ## License and Warranty
 
 This software is provided "as-is" together with all defects, and no warranties, express or implied, are made, including but not

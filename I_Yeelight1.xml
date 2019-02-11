@@ -10,7 +10,7 @@
         function startupYeelightPlugin(devNum)
             luup.log("Yeelight Plugin STARTUP!")
             YeelightPlugin = require("L_Yeelight1")
-            if not YeelightPlugin then 
+            if not YeelightPlugin then
                 luup.log("YeelightPlugin startup FAILED",1)
                 return false
             end
@@ -41,13 +41,53 @@
         </action>
         <action>
             <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>SaveCurrentColor</name>
+            <run>
+                YeelightPlugin.actionSaveCurrentColor( lul_settings.DeviceNum, lul_settings.ProfileName, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>SaveColorProfile</name>
+            <run>
+                YeelightPlugin.actionSaveColorProfile( lul_settings.RGB, lul_settings.ProfileName, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>RestoreColorProfile</name>
+            <job>
+                -- This action can run on a bulb or the master device
+                if lul_settings.DeviceList == nil and luup.devices[lul_device].device_type == "urn:schemas-upnp-org:device:DimmableRGBLight:1" then
+                    -- Bulb
+                    return YeelightPlugin.jobRestoreColorProfile( lul_device, lul_settings.ProfileName, luup.devices[lul_device].device_num_parent )
+                end
+                return YeelightPlugin.jobRestoreColorProfile( lul_settings.DeviceList, lul_settings.ProfileName, lul_device )
+            </job>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>GetColorProfile</name>
+            <run>
+                return YeelightPlugin.actionGetColorProfile( lul_settings.ProfileName, lul_device )
+            </run>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
+            <name>SetGroup</name>
+            <job>
+                return YeelightPlugin.jobSetGroup( lul_settings.DeviceList, lul_device )
+            </job>
+        </action>
+        <action>
+            <serviceId>urn:toggledbits-com:serviceId:Yeelight1</serviceId>
             <name>MasterClear</name>
             <job>
                 YeelightPlugin.actionMasterClear( lul_device )
                 return 4,0
             </job>
         </action>
-        
+
         <action>
             <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
             <name>SetTarget</name>
