@@ -149,7 +149,7 @@ var Yeelight1_UI7 = (function(api, $) {
     function handleMasterLightToggle( ev ) {
         var el = jQuery( ev.currentTarget );
         var row = el.closest( 'div.devicerow' );
-        var dev = parseInt( row.attr( 'id' ) );
+        var dev = parseInt( row.attr( 'id' ).replace( /^d/i, "" ) );
         api.performActionOnDevice( dev, "urn:micasaverde-com:serviceId:HaDevice1", "ToggleState", { actionArguments: {} });
     }
 

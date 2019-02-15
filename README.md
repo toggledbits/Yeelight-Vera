@@ -58,15 +58,29 @@ proves inconvenient, you can change the `UpdateInterval` state variable in the b
 device. Keep in mind, however, that very small intervals (less than 60 seconds), may increase the load on your Vera (for likely
 very little average benefit).
 
-## Special Feature: Gel Colors
+## Special Features
+
+### Gel Colors
 
 The plugin has conversion tables for approximations of various color gels (Roscolux, Lee Filters, and GamColor). By using the
-`SetColor` action and passing a specially formatted string, you can have the plugin set the bulb to a named or numbered color. The
+`SetColor` action (in service `urn:micasaverde-com:serviceId:Color1`) and passing a specially formatted string, you can have the plugin set the bulb to a named or numbered color. The
 format is "!_xn_", where "!" is a literal exclamation mark, _x_ is the manufacturer code (currently R=Roscolux, L=Lee Filters, G=GamColor),
 and _n_ is the numeric code or string color name. For example, "!r66" sets Roscolux "cool blue", which could also be done by sending
 "!rcool blue". Note that case is not significant in these strings for the manufacturer or color name.
 
-It should go without saying that this use of the `SetColor` action is an extension by this plugin, and this feature is unlikely to be supported in products not controlled by this plugin.
+It should go without saying that this use of the `SetColor` action is an extension by this plugin, and this feature is unlikely to be supported in products not controlled by this plugin. But there's a workaround if you're working with both Yeelight and non-Yeelight bulbs... see below.
+
+### Named Color Profiles
+
+Key to the implementation of gel colors is named color profiles. Named color profiles are simply an association of a name with an r,g,b triplet that defines the color. The gel colors are just pre-defined named colors. It is also possible, however, to have custom named colors.
+
+On each light, the "Color Profile" tab allows you to save the current color to a named profile, or restore a saved color profile. On the Yeelight plugin master device, there are similar interfaces that let you save the color of any of the controlled lights, or restore a color from a named profile to a set of lights. All of the gel colors available are stored as named profiles and can be accessed through this interface.
+
+The plugin defines two actions in its service (`urn:toggledbits-com:serviceId:Yeelight1`) that are used to implement this feature: `SaveCurrentColor` and `RestoreColorProfile`.
+
+The `SaveCurrentColor` action takes two parameters: `DeviceNum`, which is the light device number from which to grab the current color; and `ProfileName`, which is the name under which to store the color. The `DeviceNum` can refer to any RGB light, not just Yeelight.
+
+The `RestoreColorProfile` action sets a list of lights to the specified profile's color. The action takes two arguments: `DeviceList`, which is a string containing a comma-separated list of device numbers to which the named color should be set; and `ProfileName`, which is the name of the color profile. The devices listed in `DeviceList` may be any RGB light that supports the Vera-standard `urn:micasaverde-com:serviceId:Color1` service. So, it's thus possible to restore a color to a mix of lights of different types (e.g. bulbs and strips) as well as different manufacturers (e.g. Yeelight, Magiclight, Hue, etc.).
 
 ## License and Warranty
 
