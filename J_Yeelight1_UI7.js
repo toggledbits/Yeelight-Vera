@@ -73,19 +73,19 @@ var Yeelight1_UI7 = (function(api, $) {
             return;
         }
         var pdev = api.getCpanelDeviceId();
-        var doUpdate = false;
-        for ( var k=0; k<(args.states || []).length; ++k ) {
-            var dobj = api.getDeviceObject( args.id );
-            var st = args.states[k];
-            if ( dobj.id_parent == pdev ) {
+        var dobj = api.getDeviceObject( args.id );
+        if ( dobj.id_parent == pdev ) {
+            console.log("Update received for "+String(args.id));
+            for ( var k=0; k<(args.states || []).length; ++k ) {
+                var st = args.states[k];
                 if ( st.service == "urn:upnp-org:serviceId:SwitchPower1" &&
                      st.variable == "Status" ) {
-                    jQuery( 'div.devicerow#' + args.id + ' img' ).attr( 'src',
+                    jQuery( 'div#d' + args.id + '.devicerow img#state' ).attr( 'src',
                         'https://www.toggledbits.com/assets/yeelight/yeelight-lamp-' +
                     ( st.value=="0" ? "off" : "on" ) + '.png' );
                 } else if ( st.service == "urn:toggledbits-com:serviceId:Yeelight1" &&
                         st.variable == "HexColor" ) {
-                    jQuery( 'div.devicerow#' + args.id + ' div#colorspot' )
+                    jQuery( 'div#d' + args.id + '.devicerow div#colorspot' )
                         .css( 'background-color', '#' + st.value )
                         .attr( 'title', st.value );
                 }
@@ -170,6 +170,7 @@ var Yeelight1_UI7 = (function(api, $) {
         var devicelist = [];
         jQuery( 'i.tbchecked', container ).each( function( ix, obj ) {
             var devnum = jQuery( obj ).closest( 'div.devicerow' ).attr( 'id' );
+            devnum = devnum.replace( /^d/i, "" );
             devicelist.push( devnum );
         });
         if ( devicelist.length < 1 ) {
@@ -220,14 +221,14 @@ var Yeelight1_UI7 = (function(api, $) {
             el.append("Profile: ");
             el.append('<select id="mfg" class="form-control form-control-sm"/>');
             el.append('<select id="profile" class="form-control form-control-sm"/>');
-            el.append('<button id="setprofile" class="btn btn-sm btn-default">Apply to selected lights</button>');
+            el.append('<button id="setprofile" class="btn btn-sm btn-primary">Apply to selected lights</button>');
             row.append( el );
             container.append( row );
 
             var lights = getSortedChildren( api.getCpanelDeviceId() );
             var st;
             for ( var ix=0; ix<lights.length; ix++ ) {
-                row = jQuery( '<div class="row devicerow" />' ).attr('id', lights[ix].id );
+                row = jQuery( '<div class="row devicerow" />' ).attr('id', 'd'+lights[ix].id );
                 el = jQuery( '<div class="col-xs-1 col-md-1 text-center" />' );
                 el.append( '<i id="checked" class="material-icons md-btn" title="Select/deselect for action">check_box_outline_blank</i>' );
                 row.append( el );
