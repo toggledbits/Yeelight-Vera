@@ -168,7 +168,7 @@ end
 local function setVar( sid, name, val, dev )
     val = (val == nil) and "" or tostring(val)
     local s = luup.variable_get( sid, name, dev ) or ""
-    -- D("setVar(%1,%2,%3,%4) old value %5", sid, name, val, dev, s )
+    D("setVar(%1,%2,%3,%4) old value %5", sid, name, val, dev, s )
     if s ~= val then
         luup.variable_set( sid, name, val, dev )
         return true, s
@@ -408,33 +408,32 @@ local function checkBulbProp( bulb, taskid, argv )
                 changed = changed or setVar( SWITCHSID, "Status", (data.result[1]=="on") and 1 or 0, bulb )
                 changed = changed or setVar( SWITCHSID, "Target", (data.result[1]=="on") and 1 or 0, bulb )
                 changed = changed or setVar( DIMMERSID, "LoadLevelStatus", (data.result[1]=="on") and data.result[2] or 0, bulb )
-                changed = changed or setVar( DIMMERSID, "LoadLevelTarget", data.result[2], bulb )
+                changed = changed or setVar( DIMMERSID, "LoadLevelTarget", (data.result[1]=="on") and data.result[2] or 0, bulb )
                 local w,d,r,g,b = 0,0,0,0,0
-                local targetColor = ""
                 if data.result[5] == "1" then
                     -- Light in RGB mode
                     local v = tonumber( data.result[4] ) or 0
                     r = math.floor( v / 65536 )
                     g = math.floor( v / 256 ) % 256
                     b = v % 256
-                    targetColor = string.format("%d,%d,%d", r, g, b)
+                    setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
                 elseif data.result[5] == "2" then
                     -- Light in color temp mode
                     local v = tonumber( data.result[3] ) or 3000
                     if v >= 5500 then
                         -- Daylight (cool) range
                         d = math.floor( ( v - 5500 ) / 3500 * 255 )
-                        targetColor = string.format("D%d", d)
                     else
                         -- Warm range
                         w = math.floor( ( v - 2000 ) / 3500 * 255 )
-                        targetColor = string.format("W%d", w)
                     end
                     r,g,b = approximateRGB( v )
+                    setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
+                    r,g,b = 0,0,0
                 end -- 3=HSV, we don't support
                 changed = changed or setVar( COLORSID, "CurrentColor", string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b ), bulb )
-                setVar( COLORSID, "TargetColor", targetColor, bulb )
-                setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
+                local targetColor = string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b )
+                changed = changed or setVar( COLORSID, "TargetColor", targetColor, bulb )
 
                 if getVarNumeric( "AuthoritativeForDevice", 0, bulb, MYSID ) ~= 0 then
                     -- ??? to do
@@ -494,12 +493,13 @@ local function initBulb( bulb )
         initVar( "Target", "0", bulb, SWITCHSID )
         initVar( "Status", "-1", bulb, SWITCHSID )
 
-        initVar( "LoadLevelTarget", "100", bulb, DIMMERSID )
+        initVar( "LoadLevelTarget", "0", bulb, DIMMERSID )
         initVar( "LoadLevelStatus", "0", bulb, DIMMERSID )
+        initVar( "LoadLevelLast", "100", bulb, DIMMERSID )
         initVar( "TurnOnBeforeDim", "0", bulb, DIMMERSID )
         initVar( "AllowZeroLevel", "0", bulb, DIMMERSID )
 
-        initVar( "TargetColor", "W51", bulb, COLORSID )
+        initVar( "TargetColor", "0=51,1=0,2=0,3=0,4=0", bulb, COLORSID )
         initVar( "CurrentColor", "", bulb, COLORSID )
         
         luup.attr_set( "category_num", "2", bulb )
@@ -529,7 +529,7 @@ local function startBulb( bulb )
 
     devData[tostring(bulb)] = {}
 
-    scheduleDelay( { id=tostring(bulb), info="check", owner=bulb, func=checkBulb }, 15 )
+    scheduleDelay( { id=tostring(bulb), info="check", owner=bulb, func=checkBulb }, 2 )
 end
 
 -- Check bulbs
@@ -732,8 +732,9 @@ function actionPower( state, dev )
     sendDeviceCommand( "set_power", { state and "on" or "off", "smooth", 500 }, dev )
     setVar( SWITCHSID, "Target", state and "1" or "0", dev )
     setVar( SWITCHSID, "Status", state and "1" or "0", dev )
-    -- UI needs LoadLevelStatus to comport with state according to Vera's rules.
+    -- UI needs LoadLevelTarget/Status to comport with state according to Vera's rules.
     if not state then
+        setVar( DIMMERSID, "LoadLevelTarget", 0, dev )
         setVar( DIMMERSID, "LoadLevelStatus", 0, dev )
     else
         -- Restore brightness
@@ -769,6 +770,9 @@ function actionBrightness( newVal, dev )
     end
     setVar( DIMMERSID, "LoadLevelTarget", newVal, dev )
     setVar( DIMMERSID, "LoadLevelStatus", newVal, dev )
+    if newVal > 0 then
+        setVar( DIMMERSID, "LoadLevelLast", newVal, dev )
+    end
 end
 
 function actionSetColor( newVal, dev )
@@ -843,9 +847,9 @@ function actionSetColor( newVal, dev )
 
     --[[
     -- Well this is... bizarre.
-    setVar( COLORSID, "TargetColor", newVal, dev )
     local cc = string.format("0=%d,1=%d,2=%d,3=%d,4=%d", w, c, r, g, b)
     D("actionSetColor() newVal %1, new CurrentColor %2", newVal, cc)
+    setVar( COLORSID, "TargetColor", cc, dev )
     setVar( COLORSID, "CurrentColor", cc, dev )
     setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), dev )
     --]]
