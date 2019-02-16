@@ -6,7 +6,7 @@
  * Copyright 2019 Patrick H. Rigney, All Rights Reserved.
  * This file is part of Yeelight. For license information, see LICENSE at https://github.com/toggledbits/Yeelight-Vera
  */
-/* globals api,jQuery,$,MultiBox */
+/* globals api,jQuery,$,MultiBox,application,Utils */
 
 //"use strict"; // fails on UI7, works fine with ALTUI
 
@@ -26,7 +26,7 @@ var Yeelight1_UI7 = (function(api, $) {
     // var isOpenLuup = false;
     // var isALTUI = ( "undefined" !== typeof(MultiBox) );
     var colorProfiles;
-    
+
     function jq( id ) {
         return "#" + id.replace( /([^a-z0-9_-])/ig, "\\$1" );
     }
@@ -489,7 +489,7 @@ var Yeelight1_UI7 = (function(api, $) {
             jQuery( 'span#more', container ).on( 'click.yeelight', handleProfileEdit );
 
             container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12" /></div>');
-            
+
             jQuery( 'div#legend', container ).text( 'The "demo lamp", if selected, will change color with the sliders. To change a profile name, click the name. To change a profile\'s color, click its color.' );
         }
         catch( e ) {
@@ -608,6 +608,25 @@ var Yeelight1_UI7 = (function(api, $) {
         }
     }
 
+    function doAfterInit() {
+        /* Replace broken UI7 function */
+        if ( undefined !== application && undefined !== application.isDimmableRGBLight ) {
+            console.log("Replacing broken UI7 isDimmableRGBLight()");
+            application.isDimmableRGBLight = function( device ) {
+                try {
+                    if ( void 0 === device && void 0 === device.device_json ) return false;
+                    if ( "2" === device.category_num && "4" === device.subcategory_num ) return true;
+                    if ( "urn:schemas-upnp-org:device:DimmableRGBLight:1" === device.device_type ) return true;
+                    /* Do what Vera's native function does as a last resort. BTW, this omits one of their own files in 1040: D_DimmableRGBOnlyLight1.json. Oh well. */
+                    return "D_DimmableRGBLight1.json" === device.device_json || "D_DimmableRGBLight2.json" === device.device_json;
+                } catch (e) {
+                    Utils.logError("Application.isDimmableRGBLight(): " + e);
+                }
+                return !1;
+            };
+        }
+    }
+
 /** ***************************************************************************
  *
  * C L O S I N G
@@ -621,7 +640,8 @@ var Yeelight1_UI7 = (function(api, $) {
         onUIDeviceStatusChanged: onUIDeviceStatusChanged,
         doColorProfileOne: doColorProfileOne,
         doMasterLightsTab: doMasterLightsTab,
-        doMasterProfilesTab: doMasterProfilesTab
+        doMasterProfilesTab: doMasterProfilesTab,
+        doAfterInit: doAfterInit
     };
     return myModule;
 })(api, $ || jQuery);
