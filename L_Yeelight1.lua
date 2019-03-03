@@ -9,9 +9,9 @@ module("L_Yeelight1", package.seeall)
 
 local debugMode = false
 
-local _PLUGIN_ID = 99999
+local _PLUGIN_ID = 9226
 local _PLUGIN_NAME = "Yeelight"
-local _PLUGIN_VERSION = "1.1stable-19041"
+local _PLUGIN_VERSION = "1.1"
 local _PLUGIN_URL = "https://www.toggledbits.com/"
 local _CONFIGVERSION = 000004
 
@@ -168,11 +168,12 @@ end
 local function setVar( sid, name, val, dev )
     val = (val == nil) and "" or tostring(val)
     local s = luup.variable_get( sid, name, dev ) or ""
-    -- D("setVar(%1,%2,%3,%4) old value %5", sid, name, val, dev, s )
+    D("setVar(%1,%2,%3,%4) old value %5", sid, name, val, dev, s )
     if s ~= val then
         luup.variable_set( sid, name, val, dev )
+        return true, s
     end
-    return s
+    return false, s
 end
 
 -- Get numeric variable, or return default value if not set or blank
@@ -397,42 +398,42 @@ local function checkBulbProp( bulb, taskid, argv )
     D("checkBulbProp(%1,%2,%3)", bulb, taskid, argv)
     local sock, startTime = unpack( argv )
     sock:settimeout( 0 )
+    local changed = false
     while true do
         local p, err, part = sock:receive()
         if p then
             D("checkBulbProp() handling response data: %1", p)
             local data = json.decode( p )
             if data and data.result and type(data.result) == "table" then
-                setVar( SWITCHSID, "Status", (data.result[1]=="on") and 1 or 0, bulb )
-                setVar( SWITCHSID, "Target", (data.result[1]=="on") and 1 or 0, bulb )
-                setVar( DIMMERSID, "LoadLevelStatus", (data.result[1]=="on") and data.result[2] or 0, bulb )
-                setVar( DIMMERSID, "LoadLevelTarget", data.result[2], bulb )
+                changed = changed or setVar( SWITCHSID, "Status", (data.result[1]=="on") and 1 or 0, bulb )
+                changed = changed or setVar( SWITCHSID, "Target", (data.result[1]=="on") and 1 or 0, bulb )
+                changed = changed or setVar( DIMMERSID, "LoadLevelStatus", (data.result[1]=="on") and data.result[2] or 0, bulb )
+                changed = changed or setVar( DIMMERSID, "LoadLevelTarget", (data.result[1]=="on") and data.result[2] or 0, bulb )
                 local w,d,r,g,b = 0,0,0,0,0
-                local targetColor = ""
                 if data.result[5] == "1" then
                     -- Light in RGB mode
                     local v = tonumber( data.result[4] ) or 0
                     r = math.floor( v / 65536 )
                     g = math.floor( v / 256 ) % 256
                     b = v % 256
-                    targetColor = string.format("%d,%d,%d", r, g, b)
+                    setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
                 elseif data.result[5] == "2" then
                     -- Light in color temp mode
                     local v = tonumber( data.result[3] ) or 3000
                     if v >= 5500 then
                         -- Daylight (cool) range
                         d = math.floor( ( v - 5500 ) / 3500 * 255 )
-                        targetColor = string.format("D%d", d)
                     else
                         -- Warm range
                         w = math.floor( ( v - 2000 ) / 3500 * 255 )
-                        targetColor = string.format("W%d", w)
                     end
                     r,g,b = approximateRGB( v )
+                    setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
+                    r,g,b = 0,0,0
                 end -- 3=HSV, we don't support
-                setVar( COLORSID, "CurrentColor", string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b ), bulb )
-                setVar( COLORSID, "TargetColor", targetColor, bulb )
-                setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), bulb )
+                changed = changed or setVar( COLORSID, "CurrentColor", string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b ), bulb )
+                local targetColor = string.format( "0=%d,1=%d,2=%d,3=%d,4=%d", w, d, r, g, b )
+                changed = changed or setVar( COLORSID, "TargetColor", targetColor, bulb )
 
                 if getVarNumeric( "AuthoritativeForDevice", 0, bulb, MYSID ) ~= 0 then
                     -- ??? to do
@@ -460,9 +461,10 @@ local function checkBulbProp( bulb, taskid, argv )
         end
     end
     -- Terminate read cycle
-    D("checkBulbProp() closing socket, ending prop update")
+    D("checkBulbProp() closing socket, ending prop update; changed=%1", changed)
     sock:close()
-    local updateInterval = getVarNumeric( "UpdateInterval", getVarNumeric( "UpdateInterval", 300, pluginDevice, MYSID ), bulb, MYSID )
+    local updateInterval = getVarNumeric( "UpdateInterval", getVarNumeric( "UpdateInterval", 120, pluginDevice, MYSID ), bulb, MYSID )
+    if changed then updateInterval = 2 end
     scheduleDelay( { id=taskid, info="check", owner=bulb, func=checkBulb, args={} }, updateInterval )
 end
 
@@ -473,7 +475,7 @@ checkBulb = function( bulb, taskid )
         scheduleDelay( { id=taskid, info="readprop", func=checkBulbProp, args={ sock, os.time() } }, 1 )
         return
     end
-    local updateInterval = getVarNumeric( "UpdateInterval", getVarNumeric( "UpdateInterval", 300, pluginDevice, MYSID ), bulb, MYSID )
+    local updateInterval = getVarNumeric( "UpdateInterval", getVarNumeric( "UpdateInterval", 120, pluginDevice, MYSID ), bulb, MYSID )
     scheduleDelay( { id=taskid, info="check", owner=bulb, func=checkBulb, args={} }, updateInterval )
 end
 
@@ -491,12 +493,13 @@ local function initBulb( bulb )
         initVar( "Target", "0", bulb, SWITCHSID )
         initVar( "Status", "-1", bulb, SWITCHSID )
 
-        initVar( "LoadLevelTarget", "100", bulb, DIMMERSID )
+        initVar( "LoadLevelTarget", "0", bulb, DIMMERSID )
         initVar( "LoadLevelStatus", "0", bulb, DIMMERSID )
+        initVar( "LoadLevelLast", "100", bulb, DIMMERSID )
         initVar( "TurnOnBeforeDim", "0", bulb, DIMMERSID )
         initVar( "AllowZeroLevel", "0", bulb, DIMMERSID )
 
-        initVar( "TargetColor", "W51", bulb, COLORSID )
+        initVar( "TargetColor", "0=51,1=0,2=0,3=0,4=0", bulb, COLORSID )
         initVar( "CurrentColor", "", bulb, COLORSID )
         
         luup.attr_set( "category_num", "2", bulb )
@@ -526,7 +529,7 @@ local function startBulb( bulb )
 
     devData[tostring(bulb)] = {}
 
-    scheduleDelay( { id=tostring(bulb), info="check", owner=bulb, func=checkBulb }, 15 )
+    scheduleDelay( { id=tostring(bulb), info="check", owner=bulb, func=checkBulb }, 2 )
 end
 
 -- Check bulbs
@@ -729,8 +732,9 @@ function actionPower( state, dev )
     sendDeviceCommand( "set_power", { state and "on" or "off", "smooth", 500 }, dev )
     setVar( SWITCHSID, "Target", state and "1" or "0", dev )
     setVar( SWITCHSID, "Status", state and "1" or "0", dev )
-    -- UI needs LoadLevelStatus to comport with state according to Vera's rules.
+    -- UI needs LoadLevelTarget/Status to comport with state according to Vera's rules.
     if not state then
+        setVar( DIMMERSID, "LoadLevelTarget", 0, dev )
         setVar( DIMMERSID, "LoadLevelStatus", 0, dev )
     else
         -- Restore brightness
@@ -766,6 +770,9 @@ function actionBrightness( newVal, dev )
     end
     setVar( DIMMERSID, "LoadLevelTarget", newVal, dev )
     setVar( DIMMERSID, "LoadLevelStatus", newVal, dev )
+    if newVal > 0 then
+        setVar( DIMMERSID, "LoadLevelLast", newVal, dev )
+    end
 end
 
 function actionSetColor( newVal, dev )
@@ -780,52 +787,69 @@ function actionSetColor( newVal, dev )
             newVal = t
         end
     end
-    setVar( COLORSID, "TargetColor", newVal, dev )
+    local targetColor = newVal
     local status = getVarNumeric( "Status", 0, dev, SWITCHSID )
     if status == 0 then
         sendDeviceCommand( "set_power", { "on", "smooth", 500 }, dev )
         setVar( SWITCHSID, "Target", 1, dev )
         setVar( SWITCHSID, "Status", 1, dev )
     end
+    local w, c, r, g, b
     local s = split( newVal )
     if #s == 3 then
         -- R,G,B
-        local r, g, b
         r = tonumber(s[1])
         g = tonumber(s[2])
         b = tonumber(s[3])
+        w, c = 0, 0
         local rgb = r * 65536 + g * 256 + b
         sendDeviceCommand( "set_rgb", { rgb, "smooth", 500 }, dev )
     else
         -- Wnnn, Dnnn (color range)
+        local yeemin = getVarNumeric( "MinTemperature", 1600, dev, MYSID )
+        local yeemax = getVarNumeric( "MaxTemperature", 6500, dev, MYSID )
         local code,temp = newVal:upper():match( "([WD])(%d+)" )
         local t
         if code == "W" then
             t = tonumber(temp) or 128
             temp = 2000 + math.floor( t * 3500 / 255 )
+            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
+            w = t 
+            c = 0
         elseif code == "D" then
             t = tonumber(temp) or 128
             temp = 5500 + math.floor( t * 3500 / 255 )
-            if temp > 6500 then temp = 6500 end
+            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
+            c = t
+            w = 0
         elseif code == nil then
             -- Try to evaluate as integer (2000-9000K)
             temp = tonumber(newVal) or 2700
-            if temp < 1600 then temp = 1600 elseif temp > 6500 then temp = 6500 end
-            if temp >= 2000 and temp <= 5500 then
+            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
+            if temp <= 5500 then
+                if temp < 2000 then temp = 2000 end -- enforce Vera min
                 w = math.floor( ( temp - 2000 ) / 3500 * 255 )
-            elseif temp > 5500 and temp <= 9000 then
+                c = 0
+                targetColor = string.format("W%d", w)
+            elseif temp > 5500 then
+                if temp > 9000 then temp = 9000 end -- enforce Vera max
                 c = math.floor( ( temp - 5500 ) / 3500 * 255 )
+                w = 0
+                targetColor = string.format("D%d", c)
             else
                 L({level=1,msg="Unable to set color, target value %1 invalid"}, newVal)
                 return
             end
         end
         sendDeviceCommand( "set_ct_abx", { temp, "smooth", 500 }, dev )
+        r,g,b = approximateRGB( temp )
     end
+
     --[[
     -- Well this is... bizarre.
     local cc = string.format("0=%d,1=%d,2=%d,3=%d,4=%d", w, c, r, g, b)
     D("actionSetColor() newVal %1, new CurrentColor %2", newVal, cc)
+    setVar( COLORSID, "TargetColor", cc, dev )
     setVar( COLORSID, "CurrentColor", cc, dev )
     setVar( MYSID, "HexColor", string.format("%02x%02x%02x", r, g, b), dev )
     --]]
@@ -858,26 +882,30 @@ function actionSaveColorProfile( rgb, name, dev )
     luup.variable_set( MYSID, "LocalColorProfiles", json.encode( localColors ), dev )
 end
 
+-- This function is device agnostic and will work on any light that implements
+-- the Color1 service.
 function actionSaveCurrentColor( light, name, dev )
     D("actionSaveCurrentColor(%1,%2,%3)", light, name, dev)
     local n = tonumber( light )
     if n == nil then
         n = findDeviceByName( light )
     end
-    if not ( n and luup.devices[n] and luup.devices[n].device_type == BULBTYPE ) then
-        L({level=1,msg="SaveCurrentColor failed, %1 not found or not dimmable RGB light"}, light)
+    if not ( n and luup.devices[n] ) then
+        L({level=1,msg="SaveCurrentColor failed, device %1 not found"}, light)
+    elseif not luup.device_supports_service( COLORSID, n ) then
+        L({level=1,msg="SaveCurrentColor failed, device %1 does not support service %2"}, light, COLORSID)
         return
     end
 
     local cc = luup.variable_get( COLORSID, "CurrentColor", n )
     cc = split( cc )
     if #cc == 5 then
+        -- Remove first two elements (color temps we no longer need)
         table.remove( cc, 1 )
         table.remove( cc, 1 )
         for k,v in ipairs( cc ) do
             cc[k] = v:match("%d+=(%d+)")
         end
-        -- Remove first two elements (color temps)
         D("actionSaveCurrentColor() saving profile %1 as %2", name, cc)
         localColors[tostring(name or ""):lower()] = table.concat( cc, "," )
         luup.variable_set( MYSID, "LocalColorProfiles", json.encode( localColors ), dev )
@@ -886,6 +914,8 @@ function actionSaveCurrentColor( light, name, dev )
     L({level=1,msg="SaveCurrentColor failed, current color not available for %1"}, n)
 end
 
+-- This function is device agnostic and will work on any light that implements
+-- the Color1 service.
 function jobRestoreColorProfile( light, name, dev )
     D("jobRestoreColorProfile(%1,%2,%3)", light, name, dev)
     name = name:gsub( "^%!", "" )
@@ -906,10 +936,10 @@ function jobRestoreColorProfile( light, name, dev )
                 end
             end
         end
-        if n == nil then
+        if not ( n and luup.devices[n] ) then
             L({level=2,msg="RestoreColorProfile ignoring %1, invalid device number"}, d)
-        elseif not ( luup.devices[n] and luup.devices[n].device_type == BULBTYPE ) then
-            L({level=2,msg="RestoreColorProfile ignoring %1, not a dimmable RGB light"}, n)
+        elseif not luup.device_supports_service( COLORSID, n ) then
+            L({level=2,msg="RestoreColorProfile ignoring %1, does not support service %2"}, n, COLORSID)
         else
             luup.call_action( COLORSID, "SetColorRGB", { newColorRGBTarget=t }, n )
         end
@@ -952,18 +982,22 @@ function jobRunDiscovery( pdev )
 end
 
 -- IP discovery. Connect/query, and if we succeed, add.
-function jobDiscoverIP( pdev, addr )
+function jobDiscoverIP( pdev, target )
     if devData[tostring(pdev)].discoverySocket then
         L{level=2,msg="SSDP discovery running, can't do direct IP discovery"}
         return 2,0
     end
     -- Clean and canonicalize
-    addr = string.gsub( string.gsub( tostring(addr or ""), "^%s+", "" ), "%s+$", "" )
-    local port
-    D("jobDiscoverIP() checking %1", addr)
-    addr,port = string.match( addr, "^([^:]+):(%d+)" )
-    port = tonumber(port)
-    if addr == nil or port == nil then
+    target = string.gsub( string.gsub( tostring(target or ""), "^%s+", "" ), "%s+$", "" )
+    D("jobDiscoverIP() checking %1", target)
+    local addr,port = string.match( target, "^([^:]+):(%d+)" )
+    if not addr then
+        port = 55443
+        addr = target
+    else
+        port = tonumber(port)
+    end
+    if not (addr and port) then
         gatewayStatus("Discovery IP invalid, must be A.B.C.D:port")
         return 2,0
     end
@@ -971,6 +1005,7 @@ function jobDiscoverIP( pdev, addr )
     gatewayStatus("Contacting " .. addr)
     local sock = socket.tcp()
     if sock:connect( addr, port ) then
+        D("jobDiscoverIP() connected, sending get_prop to %1:%2", addr, port)
         sock:send("{ \"id\": 1, \"method\": \"get_prop\", \"params\": [ \"power\",\"id\",\"name\" ] }\r\n")
         sock:settimeout(5)
         local r,err = sock:receive()
@@ -981,8 +1016,9 @@ function jobDiscoverIP( pdev, addr )
             if data and data.result then
                 -- Looks real enough. We don't have an ID, so generate one.
                 local pfx = string.char( 96 + math.random( 26 ) )
-                local id = string.format( "%s%x", pfx, math.floor( socket.gettime() * 100 ) )
-                local name = "yeelight" .. id
+                local id = string.format( "%s%x", pfx, math.floor( socket.gettime() * 10 ) % (2^31-2) )
+                local name = "yeelight-" .. id
+                gatewayStatus("Registering "..name)
                 devData[tostring(pdev)].discoveryResponses = { [id]={ Id=id, Name=name, Address=addr..":"..port, Info={} } }
                 processDiscoveryResponses( pdev )
                 return 4,0
@@ -992,6 +1028,7 @@ function jobDiscoverIP( pdev, addr )
             gatewayStatus("Invalid or no response from device at "..addr..":"..port)
         end
     else
+        D("jobDiscoverIP() could not connect to %1:%2", addr, port)
         gatewayStatus("Can't connect to "..addr..":"..port)
     end
     sock:close()

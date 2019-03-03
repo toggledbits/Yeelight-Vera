@@ -183,7 +183,11 @@
 			"Position": "0",
 			"TabType": "flash",
 			"top_navigation_tab": 1,
-            "TopNavigationTab": 1,
+			"TopNavigationTab": 1,
+			"AfterInit": {
+				"ScriptName": "J_Yeelight1_UI7.js",
+				"Function": "Yeelight1_UI7.doAfterInit"
+			},
 			"ControlGroup": [{
 					"id": "1",
 					"isSingle": "1",
@@ -318,7 +322,6 @@
 					"ControlType": "spacer"
 				},
 				{
-					"ControlGroup": "2",
 					"ControlType": "color_temperature_picker",
 					"ColorPickerType": "1",
 					"ControlCode": "color_warm",
@@ -351,7 +354,6 @@
 					}
 				},
 				{
-					"ControlGroup": "2",
 					"ControlType": "color_temperature_picker",
 					"ColorPickerType": "1",
 					"ControlCode": "color_cold",
@@ -431,7 +433,7 @@
 				"text": "Color Profile"
 			},
 			"Position": 1,
-            "TopNavigationTab": 1,
+			"TopNavigationTab": 1,
 			"TabType": "javascript",
 			"ScriptName": "J_Yeelight1_UI7.js",
 			"Function": "Yeelight1_UI7.doColorProfileOne"
@@ -520,7 +522,7 @@
 		}
 	},
 	"eventList2": [
-        {
+		{
 			"id": 1,
 			"label": {
 				"lang_tag": "ui7_a_device_is_turned_on_off",

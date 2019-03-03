@@ -6,7 +6,7 @@
  * Copyright 2019 Patrick H. Rigney, All Rights Reserved.
  * This file is part of Yeelight. For license information, see LICENSE at https://github.com/toggledbits/Yeelight-Vera
  */
-/* globals api,jQuery,$,MultiBox */
+/* globals api,jQuery,$,MultiBox,application,Utils */
 
 //"use strict"; // fails on UI7, works fine with ALTUI
 
@@ -26,7 +26,7 @@ var Yeelight1_UI7 = (function(api, $) {
     // var isOpenLuup = false;
     // var isALTUI = ( "undefined" !== typeof(MultiBox) );
     var colorProfiles;
-    
+
     function jq( id ) {
         return "#" + id.replace( /([^a-z0-9_-])/ig, "\\$1" );
     }
@@ -73,19 +73,19 @@ var Yeelight1_UI7 = (function(api, $) {
             return;
         }
         var pdev = api.getCpanelDeviceId();
-        var doUpdate = false;
-        for ( var k=0; k<(args.states || []).length; ++k ) {
-            var dobj = api.getDeviceObject( args.id );
-            var st = args.states[k];
-            if ( dobj.id_parent == pdev ) {
+        var dobj = api.getDeviceObject( args.id );
+        if ( dobj.id_parent == pdev ) {
+            console.log("Update received for "+String(args.id));
+            for ( var k=0; k<(args.states || []).length; ++k ) {
+                var st = args.states[k];
                 if ( st.service == "urn:upnp-org:serviceId:SwitchPower1" &&
                      st.variable == "Status" ) {
-                    jQuery( 'div.devicerow#' + args.id + ' img' ).attr( 'src',
+                    jQuery( 'div#d' + args.id + '.devicerow img#state' ).attr( 'src',
                         'https://www.toggledbits.com/assets/yeelight/yeelight-lamp-' +
                     ( st.value=="0" ? "off" : "on" ) + '.png' );
                 } else if ( st.service == "urn:toggledbits-com:serviceId:Yeelight1" &&
                         st.variable == "HexColor" ) {
-                    jQuery( 'div.devicerow#' + args.id + ' div#colorspot' )
+                    jQuery( 'div#d' + args.id + '.devicerow div#colorspot' )
                         .css( 'background-color', '#' + st.value )
                         .attr( 'title', st.value );
                 }
@@ -149,7 +149,7 @@ var Yeelight1_UI7 = (function(api, $) {
     function handleMasterLightToggle( ev ) {
         var el = jQuery( ev.currentTarget );
         var row = el.closest( 'div.devicerow' );
-        var dev = parseInt( row.attr( 'id' ) );
+        var dev = parseInt( row.attr( 'id' ).replace( /^d/i, "" ) );
         api.performActionOnDevice( dev, "urn:micasaverde-com:serviceId:HaDevice1", "ToggleState", { actionArguments: {} });
     }
 
@@ -170,6 +170,7 @@ var Yeelight1_UI7 = (function(api, $) {
         var devicelist = [];
         jQuery( 'i.tbchecked', container ).each( function( ix, obj ) {
             var devnum = jQuery( obj ).closest( 'div.devicerow' ).attr( 'id' );
+            devnum = devnum.replace( /^d/i, "" );
             devicelist.push( devnum );
         });
         if ( devicelist.length < 1 ) {
@@ -216,33 +217,33 @@ var Yeelight1_UI7 = (function(api, $) {
 
             var container = jQuery( 'div#yeemasterlights' );
             var row = jQuery( '<div class="row headrow"/>' );
-            var el = jQuery( '<div id="actions" class="col-xs-12 form-inline"/>' );
+            var el = jQuery( '<div id="actions" class="col-xs-12 col-sm-12 form-inline"/>' );
             el.append("Profile: ");
             el.append('<select id="mfg" class="form-control form-control-sm"/>');
             el.append('<select id="profile" class="form-control form-control-sm"/>');
-            el.append('<button id="setprofile" class="btn btn-sm btn-default">Apply to selected lights</button>');
+            el.append('<button id="setprofile" class="btn btn-sm btn-primary">Apply to selected lights</button>');
             row.append( el );
             container.append( row );
 
             var lights = getSortedChildren( api.getCpanelDeviceId() );
             var st;
             for ( var ix=0; ix<lights.length; ix++ ) {
-                row = jQuery( '<div class="row devicerow" />' ).attr('id', lights[ix].id );
-                el = jQuery( '<div class="col-xs-1 col-md-1 text-center" />' );
+                row = jQuery( '<div class="row devicerow" />' ).attr('id', 'd'+lights[ix].id );
+                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center" />' );
                 el.append( '<i id="checked" class="material-icons md-btn" title="Select/deselect for action">check_box_outline_blank</i>' );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-1 col-md-1 text-center" />' );
+                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center" />' );
                 st = api.getDeviceState( lights[ix].id, "urn:upnp-org:serviceId:SwitchPower1", "Status" ) || "0";
                 el.append( jQuery( '<img id="state" src="https://www.toggledbits.com/assets/yeelight/yeelight-lamp-' +
                     ( st=="0" ? "off" : "on" ) + '.png" width="32" height="32" alt="switch state">' )
                     .attr( 'title', 'Click to toggle state' )
                 );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-1 col-md-1"><div id="colorspot" title="current color" /></div>' );
+                el = jQuery( '<div class="col-xs-1 col-sm-1"><div id="colorspot" title="current color" /></div>' );
                 st = api.getDeviceState( lights[ix].id, "urn:toggledbits-com:serviceId:Yeelight1", "HexColor" ) || "000000";
                 jQuery( 'div#colorspot', el ).css( 'background-color', '#' + st ).attr( 'title', st );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-9 col-md-9" />' ).text( lights[ix].name + ' (#' + lights[ix].id + ')' );
+                el = jQuery( '<div class="col-xs-9 col-sm-9" />' ).text( lights[ix].name + ' (#' + lights[ix].id + ')' );
                 row.append( el );
                 container.append( row );
             }
@@ -250,7 +251,7 @@ var Yeelight1_UI7 = (function(api, $) {
             jQuery( 'i#checked', container).on( 'click.yeelight', handleMasterCheckToggle );
             jQuery( 'img#state', container ).on( 'click.yeelight', handleMasterLightToggle );
 
-            container.append('<div class="row"><div id="legend" class="col-xs-12" /></div>');
+            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12" /></div>');
 
             api.registerEventHandler('on_ui_deviceStatusChanged', Yeelight1_UI7, 'onUIDeviceStatusChanged');
             inStatusPanel = true; /* Tell the event handler it's OK */
@@ -383,8 +384,8 @@ var Yeelight1_UI7 = (function(api, $) {
             }
             /* This is a new profile */
             nr = jQuery( '<div class="row profilerow"/>' ).attr( 'id', name );
-            nr.append( '<div class="col-xs-1 col-md-1"><i id="deleteprofile" class="material-icons md-btn">clear</i></div>' );
-            nr.append( '<div class="col-xs-11 col-md-11"><span id="profilename"/> = <span id="more"/></div>' );
+            nr.append( '<div class="col-xs-1 col-sm-1"><i id="deleteprofile" class="material-icons md-btn">clear</i></div>' );
+            nr.append( '<div class="col-xs-11 col-sm-11"><span id="profilename"/> = <span id="more"/></div>' );
             jQuery( 'span#profilename', nr ).text( name );
             jQuery( 'span#more', nr ).text( rgb );
             nr.insertBefore( row );
@@ -422,9 +423,9 @@ var Yeelight1_UI7 = (function(api, $) {
 
             var container = jQuery( 'div#yeemasterprofiles' );
             var row = jQuery( '<div class="row headrow"/>' );
-            var el = jQuery( '<div id="actions" class="col-xs-2 col-md-2"/>' );
+            var el = jQuery( '<div id="actions" class="col-xs-2 col-sm-2"/>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-10 col-md-10" />' );
+            el = jQuery( '<div class="col-xs-10 col-sm-10" />' );
             row.append( el );
             container.append( row );
 
@@ -434,10 +435,10 @@ var Yeelight1_UI7 = (function(api, $) {
                 if ( !custom.hasOwnProperty( id ) ) continue;
                 var p = custom[id];
                 row = jQuery( '<div class="row profilerow" />' ).attr('id', id );
-                el = jQuery( '<div class="col-xs-1 col-md-1" />' );
+                el = jQuery( '<div class="col-xs-1 col-sm-1" />' );
                 el.append( '<i id="deleteprofile" class="material-icons md-btn" title="Delete Profile">clear</i>' );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-11 col-md-11" />' );
+                el = jQuery( '<div class="col-xs-11 col-sm-11" />' );
                 el.append( jQuery( '<span id="profilename" />' ).text(id) );
                 el.append( ' = ' );
                 el.append( jQuery( '<span id="more" />' ).text( p ) );
@@ -446,14 +447,14 @@ var Yeelight1_UI7 = (function(api, $) {
             }
 
             row = jQuery( '<div class="row"/>' );
-            el = jQuery( '<div class="col-xs-3 form-inline"/>' );
+            el = jQuery( '<div class="col-xs-3 col-sm-3 form-inline"/>' );
             el.append( '<label for="demolamp">Demo Lamp: <select id="demolamp" class="form-control form-control-sm" /></label>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-4 form-inline"/>' );
+            el = jQuery( '<div class="col-xs-4 col-sm-4 form-inline"/>' );
             el.append( '<label for="newprofile">New Profile Name: <input id="newprofile" class="form-control form-control-sm"></label>' );
             el.append( '<button id="addprofile" class="btn btn-sm btn-primary">Save</button>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-5">' );
+            el = jQuery( '<div class="col-xs-5 col-sm-5"/>' );
             el.append( '<div id="redslide" class="tbslide" />' );
             el.append( '<div id="greenslide" class="tbslide" />' );
             el.append( '<div id="blueslide" class="tbslide" />' );
@@ -487,8 +488,8 @@ var Yeelight1_UI7 = (function(api, $) {
 
             jQuery( 'span#more', container ).on( 'click.yeelight', handleProfileEdit );
 
-            container.append('<div class="row"><div id="legend" class="col-xs-12" /></div>');
-            
+            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12" /></div>');
+
             jQuery( 'div#legend', container ).text( 'The "demo lamp", if selected, will change color with the sliders. To change a profile name, click the name. To change a profile\'s color, click its color.' );
         }
         catch( e ) {
@@ -571,14 +572,14 @@ var Yeelight1_UI7 = (function(api, $) {
 
             var container = jQuery( 'div#yeelightstatus' );
             var row = jQuery( '<div class="row"/>' );
-            var el = jQuery( '<div class="col-xs-12 form-inline"/>' );
+            var el = jQuery( '<div class="col-xs-12 col-sm-12 form-inline"/>' );
             el.append( '<h3>Save Color</h3><label for="saveprofilename">Save current color to profile: <input id="saveprofilename" class="form-control form-control-sm"></label><button id="saveprofile" class="btn btn-sm btn-primary">Save Color</button><span id="savestatus"/>' );
             row.append( el );
             container.append( row );
 
             container.append( '<h3>Restore Profile Color</h3>' );
             row = jQuery( '<div class="row" />' );
-            el = jQuery( '<div id="profilesection" class="col-xs-12 form-inline"/>' );
+            el = jQuery( '<div id="profilesection" class="col-xs-12 col-sm-12 form-inline"/>' );
             el.append( '<select id="mfg" class="form-control form-control-sm"><option value="" disabled>Loading...</option></select>' );
             el.append( '<select id="profile" class="form-control form-control-sm"><option value="" disabled>Loading...</option></select>' );
             el.append( '<button id="restoreprofile" class="btn btn-sm btn-primary">Set Color from Profile</button>' );
@@ -607,6 +608,25 @@ var Yeelight1_UI7 = (function(api, $) {
         }
     }
 
+    function doAfterInit() {
+        /* Replace broken UI7 function */
+        if ( undefined !== application && undefined !== application.isDimmableRGBLight ) {
+            console.log("Replacing broken UI7 isDimmableRGBLight()");
+            application.isDimmableRGBLight = function( device ) {
+                try {
+                    if ( void 0 === device && void 0 === device.device_json ) return false;
+                    if ( "2" === device.category_num && "4" === device.subcategory_num ) return true;
+                    if ( "urn:schemas-upnp-org:device:DimmableRGBLight:1" === device.device_type ) return true;
+                    /* Do what Vera's native function does as a last resort. BTW, this omits one of their own files in 1040: D_DimmableRGBOnlyLight1.json. Oh well. */
+                    return "D_DimmableRGBLight1.json" === device.device_json || "D_DimmableRGBLight2.json" === device.device_json;
+                } catch (e) {
+                    Utils.logError("Application.isDimmableRGBLight(): " + e);
+                }
+                return !1;
+            };
+        }
+    }
+
 /** ***************************************************************************
  *
  * C L O S I N G
@@ -620,7 +640,8 @@ var Yeelight1_UI7 = (function(api, $) {
         onUIDeviceStatusChanged: onUIDeviceStatusChanged,
         doColorProfileOne: doColorProfileOne,
         doMasterLightsTab: doMasterLightsTab,
-        doMasterProfilesTab: doMasterProfilesTab
+        doMasterProfilesTab: doMasterProfilesTab,
+        doAfterInit: doAfterInit
     };
     return myModule;
 })(api, $ || jQuery);
