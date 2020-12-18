@@ -14,6 +14,8 @@ var Yeelight1_UI7 = (function(api, $) {
 
     console.log("Initializing Yeelight1_UI7 module");
 
+    var pluginVersion = '1.2develop-20353';
+
     /* unique identifier for this plugin... */
     var uuid = '8272ee0a-2629-11e9-a765-74d4351650de'; /* 2019-02-01 Yeelight */
 
@@ -38,7 +40,7 @@ var Yeelight1_UI7 = (function(api, $) {
 
     /* Return footer */
     function footer() {
-        var html = '';
+        var html = '<hr/>YeeLight Plugin for Vera version ' + pluginVersion + "<br/>Copyright &#169; 2019 Patrick H. Rigney, All Rights Reserved";
         return html;
     }
 
@@ -118,7 +120,7 @@ var Yeelight1_UI7 = (function(api, $) {
         var mfg = jQuery( 'select#mfg', container ).val();
         var p = colorProfiles.profiles[mfg] || [];
         for ( var ix=0; ix<p.length; ix++ ) {
-            opt = jQuery( '<option/>').val( p[ix].id ).text(p[ix].id + ' / ' + p[ix].name);
+            opt = jQuery( '<option></option>').val( p[ix].id ).text(p[ix].id + ' / ' + p[ix].name);
             m.append( opt );
         }
         jQuery( 'option:first', m ).prop( 'selected', true ); /* Force select first */
@@ -137,7 +139,7 @@ var Yeelight1_UI7 = (function(api, $) {
         var opt;
         for ( var ix=0; ix<colorProfiles.manufacturers.length; ix++ ) {
             if ( ( colorProfiles.profiles[ colorProfiles.manufacturers[ix].id ] || [] ).length > 0 ) {
-                opt = jQuery( '<option/>' ).val( colorProfiles.manufacturers[ix].id ).text( colorProfiles.manufacturers[ix].name );
+                opt = jQuery( '<option></option>' ).val( colorProfiles.manufacturers[ix].id ).text( colorProfiles.manufacturers[ix].name );
                 m.append( opt );
             }
         }
@@ -216,11 +218,11 @@ var Yeelight1_UI7 = (function(api, $) {
             api.setCpanelContent( html );
 
             var container = jQuery( 'div#yeemasterlights' );
-            var row = jQuery( '<div class="row headrow"/>' );
-            var el = jQuery( '<div id="actions" class="col-xs-12 col-sm-12 form-inline"/>' );
+            var row = jQuery( '<div class="row headrow"></div>' );
+            var el = jQuery( '<div id="actions" class="col-xs-12 col-sm-12 form-inline"></div>' );
             el.append("Profile: ");
-            el.append('<select id="mfg" class="form-control form-control-sm"/>');
-            el.append('<select id="profile" class="form-control form-control-sm"/>');
+            el.append('<select id="mfg" class="form-control form-control-sm"></select>');
+            el.append('<select id="profile" class="form-control form-control-sm"></select>');
             el.append('<button id="setprofile" class="btn btn-sm btn-primary">Apply to selected lights</button>');
             row.append( el );
             container.append( row );
@@ -228,22 +230,22 @@ var Yeelight1_UI7 = (function(api, $) {
             var lights = getSortedChildren( api.getCpanelDeviceId() );
             var st;
             for ( var ix=0; ix<lights.length; ix++ ) {
-                row = jQuery( '<div class="row devicerow" />' ).attr('id', 'd'+lights[ix].id );
-                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center" />' );
+                row = jQuery( '<div class="row devicerow"></div>' ).attr('id', 'd'+lights[ix].id );
+                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center"></div>' );
                 el.append( '<i id="checked" class="material-icons md-btn" title="Select/deselect for action">check_box_outline_blank</i>' );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center" />' );
+                el = jQuery( '<div class="col-xs-1 col-sm-1 text-center"></div>' );
                 st = api.getDeviceState( lights[ix].id, "urn:upnp-org:serviceId:SwitchPower1", "Status" ) || "0";
                 el.append( jQuery( '<img id="state" src="https://www.toggledbits.com/assets/yeelight/yeelight-lamp-' +
                     ( st=="0" ? "off" : "on" ) + '.png" width="32" height="32" alt="switch state">' )
                     .attr( 'title', 'Click to toggle state' )
                 );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-1 col-sm-1"><div id="colorspot" title="current color" /></div>' );
+                el = jQuery( '<div class="col-xs-1 col-sm-1"><div id="colorspot" title="current color"></div></div>' );
                 st = api.getDeviceState( lights[ix].id, "urn:toggledbits-com:serviceId:Yeelight1", "HexColor" ) || "000000";
                 jQuery( 'div#colorspot', el ).css( 'background-color', '#' + st ).attr( 'title', st );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-9 col-sm-9" />' ).text( lights[ix].name + ' (#' + lights[ix].id + ')' );
+                el = jQuery( '<div class="col-xs-9 col-sm-9"></div>' ).text( lights[ix].name + ' (#' + lights[ix].id + ')' );
                 row.append( el );
                 container.append( row );
             }
@@ -251,7 +253,7 @@ var Yeelight1_UI7 = (function(api, $) {
             jQuery( 'i#checked', container).on( 'click.yeelight', handleMasterCheckToggle );
             jQuery( 'img#state', container ).on( 'click.yeelight', handleMasterLightToggle );
 
-            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12" /></div>');
+            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12"></div></div>');
 
             api.registerEventHandler('on_ui_deviceStatusChanged', Yeelight1_UI7, 'onUIDeviceStatusChanged');
             inStatusPanel = true; /* Tell the event handler it's OK */
@@ -383,9 +385,9 @@ var Yeelight1_UI7 = (function(api, $) {
                 return;
             }
             /* This is a new profile */
-            nr = jQuery( '<div class="row profilerow"/>' ).attr( 'id', name );
+            nr = jQuery( '<div class="row profilerow"></div>' ).attr( 'id', name );
             nr.append( '<div class="col-xs-1 col-sm-1"><i id="deleteprofile" class="material-icons md-btn">clear</i></div>' );
-            nr.append( '<div class="col-xs-11 col-sm-11"><span id="profilename"/> = <span id="more"/></div>' );
+            nr.append( '<div class="col-xs-11 col-sm-11"><span id="profilename"></span> = <span id="more"></span></div>' );
             jQuery( 'span#profilename', nr ).text( name );
             jQuery( 'span#more', nr ).text( rgb );
             nr.insertBefore( row );
@@ -422,10 +424,10 @@ var Yeelight1_UI7 = (function(api, $) {
             api.setCpanelContent( html );
 
             var container = jQuery( 'div#yeemasterprofiles' );
-            var row = jQuery( '<div class="row headrow"/>' );
-            var el = jQuery( '<div id="actions" class="col-xs-2 col-sm-2"/>' );
+            var row = jQuery( '<div class="row headrow"></div>' );
+            var el = jQuery( '<div id="actions" class="col-xs-2 col-sm-2"></div>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-10 col-sm-10" />' );
+            el = jQuery( '<div class="col-xs-10 col-sm-10"></div>' );
             row.append( el );
             container.append( row );
 
@@ -434,30 +436,30 @@ var Yeelight1_UI7 = (function(api, $) {
             for ( var id in custom ) {
                 if ( !custom.hasOwnProperty( id ) ) continue;
                 var p = custom[id];
-                row = jQuery( '<div class="row profilerow" />' ).attr('id', id );
-                el = jQuery( '<div class="col-xs-1 col-sm-1" />' );
+                row = jQuery( '<div class="row profilerow"></div>' ).attr('id', id );
+                el = jQuery( '<div class="col-xs-1 col-sm-1"></div>' );
                 el.append( '<i id="deleteprofile" class="material-icons md-btn" title="Delete Profile">clear</i>' );
                 row.append( el );
-                el = jQuery( '<div class="col-xs-11 col-sm-11" />' );
-                el.append( jQuery( '<span id="profilename" />' ).text(id) );
+                el = jQuery( '<div class="col-xs-11 col-sm-11"></div>' );
+                el.append( jQuery( '<span id="profilename"></div>' ).text(id) );
                 el.append( ' = ' );
-                el.append( jQuery( '<span id="more" />' ).text( p ) );
+                el.append( jQuery( '<span id="more"></div>' ).text( p ) );
                 row.append( el );
                 container.append( row );
             }
 
-            row = jQuery( '<div class="row"/>' );
-            el = jQuery( '<div class="col-xs-3 col-sm-3 form-inline"/>' );
-            el.append( '<label for="demolamp">Demo Lamp: <select id="demolamp" class="form-control form-control-sm" /></label>' );
+            row = jQuery( '<div class="row"></div>' );
+            el = jQuery( '<div class="col-xs-3 col-sm-3 form-inline"></div>' );
+            el.append( '<label for="demolamp">Demo Lamp: <select id="demolamp" class="form-control form-control-sm"></div></label>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-4 col-sm-4 form-inline"/>' );
+            el = jQuery( '<div class="col-xs-4 col-sm-4 form-inline"></div>' );
             el.append( '<label for="newprofile">New Profile Name: <input id="newprofile" class="form-control form-control-sm"></label>' );
             el.append( '<button id="addprofile" class="btn btn-sm btn-primary">Save</button>' );
             row.append( el );
-            el = jQuery( '<div class="col-xs-5 col-sm-5"/>' );
-            el.append( '<div id="redslide" class="tbslide" />' );
-            el.append( '<div id="greenslide" class="tbslide" />' );
-            el.append( '<div id="blueslide" class="tbslide" />' );
+            el = jQuery( '<div class="col-xs-5 col-sm-5"></div>' );
+            el.append( '<div id="redslide" class="tbslide"></div>' );
+            el.append( '<div id="greenslide" class="tbslide"></div>' );
+            el.append( '<div id="blueslide" class="tbslide"></div>' );
             row.append( el );
             container.append( row );
 
@@ -475,9 +477,9 @@ var Yeelight1_UI7 = (function(api, $) {
 
             var lights = getSortedChildren( api.getCpanelDeviceId() );
             var m = jQuery( 'select#demolamp', container ).empty();
-            m.append( jQuery( '<option/>' ).val("").text("--none--") );
+            m.append( jQuery( '<option></option>' ).val("").text("--none--") );
             for ( var ix=0; ix<lights.length; ix++ ) {
-                m.append( jQuery( '<option/>' ).val( lights[ix].id ).text( lights[ix].name + ' (#' + lights[ix].id + ')' ) );
+                m.append( jQuery( '<option></option>' ).val( lights[ix].id ).text( lights[ix].name + ' (#' + lights[ix].id + ')' ) );
             }
 
             jQuery( 'button#addprofile', container ).on( 'click.yeelight', handleAddProfileClick );
@@ -488,7 +490,7 @@ var Yeelight1_UI7 = (function(api, $) {
 
             jQuery( 'span#more', container ).on( 'click.yeelight', handleProfileEdit );
 
-            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12" /></div>');
+            container.append('<div class="row"><div id="legend" class="col-xs-12 col-sm-12"></div></div>');
 
             jQuery( 'div#legend', container ).text( 'The "demo lamp", if selected, will change color with the sliders. To change a profile name, click the name. To change a profile\'s color, click its color.' );
         }
@@ -571,19 +573,19 @@ var Yeelight1_UI7 = (function(api, $) {
             api.setCpanelContent( html );
 
             var container = jQuery( 'div#yeelightstatus' );
-            var row = jQuery( '<div class="row"/>' );
-            var el = jQuery( '<div class="col-xs-12 col-sm-12 form-inline"/>' );
-            el.append( '<h3>Save Color</h3><label for="saveprofilename">Save current color to profile: <input id="saveprofilename" class="form-control form-control-sm"></label><button id="saveprofile" class="btn btn-sm btn-primary">Save Color</button><span id="savestatus"/>' );
+            var row = jQuery( '<div class="row"></div>' );
+            var el = jQuery( '<div class="col-xs-12 col-sm-12 form-inline"></div>' );
+            el.append( '<h3>Save Color</h3><label for="saveprofilename">Save current color to profile: <input id="saveprofilename" class="form-control form-control-sm"></label><button id="saveprofile" class="btn btn-sm btn-primary">Save Color</button><span id="savestatus"></span>' );
             row.append( el );
             container.append( row );
 
             container.append( '<h3>Restore Profile Color</h3>' );
-            row = jQuery( '<div class="row" />' );
-            el = jQuery( '<div id="profilesection" class="col-xs-12 col-sm-12 form-inline"/>' );
+            row = jQuery( '<div class="row"></div>' );
+            el = jQuery( '<div id="profilesection" class="col-xs-12 col-sm-12 form-inline"></div>' );
             el.append( '<select id="mfg" class="form-control form-control-sm"><option value="" disabled>Loading...</option></select>' );
             el.append( '<select id="profile" class="form-control form-control-sm"><option value="" disabled>Loading...</option></select>' );
             el.append( '<button id="restoreprofile" class="btn btn-sm btn-primary">Set Color from Profile</button>' );
-            el.append( '<br/><span id="luahelp"/>' );
+            el.append( '<br/><span id="luahelp"></span>' );
             row.append( el );
             container.append( row );
 

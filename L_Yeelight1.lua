@@ -11,7 +11,7 @@ local debugMode = false
 
 local _PLUGIN_ID = 9226
 local _PLUGIN_NAME = "Yeelight"
-local _PLUGIN_VERSION = "1.1"
+local _PLUGIN_VERSION = "1.2develop-20353"
 local _PLUGIN_URL = "https://www.toggledbits.com/"
 local _CONFIGVERSION = 000004
 
@@ -795,12 +795,14 @@ function actionSetColor( newVal, dev )
         setVar( SWITCHSID, "Status", 1, dev )
     end
     local w, c, r, g, b
+	-- Strip letters in RGB color spec if given (e.g. R255,G128,B0). Haven't seen, but heard it's possible.
+	newVal = newVal:upper():gsub("[RGB](%d+)", "%1") -- ??? what if they're out of order: B0,R255,G128 ??? possible?
     local s = split( newVal )
     if #s == 3 then
         -- R,G,B
-        r = tonumber(s[1])
-        g = tonumber(s[2])
-        b = tonumber(s[3])
+        r = math.max(0, math.min(255, tonumber(s[1]) or 0))
+        g = math.max(0, math.min(255, tonumber(s[2]) or 0))
+        b = math.max(0, math.min(255, tonumber(s[3]) or 0))
         w, c = 0, 0
         local rgb = r * 65536 + g * 256 + b
         sendDeviceCommand( "set_rgb", { rgb, "smooth", 500 }, dev )
@@ -812,27 +814,24 @@ function actionSetColor( newVal, dev )
         local t
         if code == "W" then
             t = tonumber(temp) or 128
-            temp = 2000 + math.floor( t * 3500 / 255 )
-            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
+            temp = math.max(yeemin, math.min(yeemax, 2000 + math.floor( t * 3500 / 255 )))
             w = t 
             c = 0
         elseif code == "D" then
             t = tonumber(temp) or 128
-            temp = 5500 + math.floor( t * 3500 / 255 )
-            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
+            temp = math.max(yeemin, math.min(yeemax, 5500 + math.floor( t * 3500 / 255 )))
             c = t
             w = 0
         elseif code == nil then
             -- Try to evaluate as integer (2000-9000K)
-            temp = tonumber(newVal) or 2700
-            if temp < yeemin then temp = yeemin elseif temp > yeemax then temp = yeemax end
-            if temp <= 5500 then
-                if temp < 2000 then temp = 2000 end -- enforce Vera min
+            temp = math.max(yeemin, math.min(yeemax, tonumber(newVal) or 2700))
+            if temp < 5500 then
+                temp = math.max(2000, temp) -- enforce Vera min
                 w = math.floor( ( temp - 2000 ) / 3500 * 255 )
                 c = 0
                 targetColor = string.format("W%d", w)
-            elseif temp > 5500 then
-                if temp > 9000 then temp = 9000 end -- enforce Vera max
+            elseif temp >= 5500 then
+                temp = math.min(9000, temp) -- enforce Vera max
                 c = math.floor( ( temp - 5500 ) / 3500 * 255 )
                 w = 0
                 targetColor = string.format("D%d", c)
